@@ -26,7 +26,12 @@ SOURCES := \
     src/ui.c \
     src/input.c \
     src/tvm.c \
-    src/cashflow.c
+    src/cashflow.c \
+    src/memory.c \
+    src/keyboard.c \
+    src/screens.c \
+    src/worksheets.c \
+    src/tests.c
 
 # Headers
 HEADERS := \
@@ -35,7 +40,12 @@ HEADERS := \
     src/ui.h \
     src/input.h \
     src/tvm.h \
-    src/cashflow.h
+    src/cashflow.h \
+    src/memory.h \
+    src/keyboard.h \
+    src/screens.h \
+    src/worksheets.h \
+    src/tests.h
 
 # Object files
 OBJECTS := $(SOURCES:.c=.o)
@@ -51,9 +61,16 @@ test: $(SOURCES) $(HEADERS)
 	$(CC) $(CFLAGS) $(SOURCES) -lm -o fx-ba-test
 	./fx-ba-test
 
+# Run CFA validation tests
+cfa-test: CFLAGS := -std=c11 -Wall -Wextra -g -DTEST_BUILD
+cfa-test: CC := gcc
+cfa-test: $(SOURCES) $(HEADERS)
+	$(CC) $(CFLAGS) $(SOURCES) -lm -o fx-ba-test
+	./fx-ba-test --test
+
 # Clean
 clean:
 	rm -f $(OBJECTS) fx-ba-test
 	rm -rf build-fx
 
-.PHONY: all test clean
+.PHONY: all test cfa-test clean
