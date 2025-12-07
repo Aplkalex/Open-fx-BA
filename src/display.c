@@ -474,34 +474,222 @@ void display_draw_cf_worksheet(Calculator *calc, int cfIndex, int showFreq) {
 }
 
 void display_draw_amort_worksheet(Calculator *calc, int p1, int p2) {
-  (void)calc;
-  (void)p1;
-  (void)p2;
-  /* To be implemented with full amort display */
+  DisplayState state;
+  display_init(&state);
+  state.currentWorksheet = WS_AMORT;
+
+  /* Show P1, P2, or results based on field */
+  if (p1 == 0) {
+    strcpy(state.varLabel, "P1");
+    state.varValue = 1;
+  } else if (p2 == 0) {
+    strcpy(state.varLabel, "P2");
+    state.varValue = 1;
+  } else {
+    strcpy(state.varLabel, "BAL");
+    /* Would compute from tvm_amort_range */
+    state.varValue = 0;
+    state.isComputed = 1;
+  }
+
+  (void)calc; /* Silence warning until full implementation */
+  display_render(&state, calc);
 }
 
 void display_draw_bond_worksheet(Calculator *calc, int currentField) {
-  (void)calc;
-  (void)currentField;
-  /* To be implemented with bond fields */
+  static const char *BOND_LABELS[] = {"SDT", "CPN", "RDT", "RV",
+                                      "YLD", "PRI", "AI",  "DUR"};
+
+  DisplayState state;
+  display_init(&state);
+  state.currentWorksheet = WS_BOND;
+
+  if (currentField >= 0 && currentField < 8) {
+    strcpy(state.varLabel, BOND_LABELS[currentField]);
+  }
+
+  switch (currentField) {
+  case 0:
+    state.varValue = (double)calc->bond.settlementDate;
+    break;
+  case 1:
+    state.varValue = calc->bond.couponRate;
+    break;
+  case 2:
+    state.varValue = (double)calc->bond.maturityDate;
+    break;
+  case 3:
+    state.varValue = calc->bond.redemption;
+    break;
+  case 4:
+    state.varValue = calc->bond.yield;
+    break;
+  case 5:
+    state.varValue = calc->bond.price;
+    break;
+  case 6:
+    state.varValue = 0;
+    state.isComputed = 1;
+    break; /* AI */
+  case 7:
+    state.varValue = 0;
+    state.isComputed = 1;
+    break; /* DUR */
+  default:
+    state.varValue = 0;
+    break;
+  }
+
+  display_render(&state, calc);
 }
 
 void display_draw_depr_worksheet(Calculator *calc, int year,
                                  DepreciationMethod method) {
-  (void)calc;
-  (void)year;
-  (void)method;
-  /* To be implemented with depreciation display */
+  static const char *DEPR_LABELS[] = {"LIF", "M01", "CST", "SAL",
+                                      "YR",  "DEP", "RBV"};
+
+  DisplayState state;
+  display_init(&state);
+  state.currentWorksheet = WS_DEPRECIATION;
+
+  /* Show current field based on worksheetIndex */
+  int field = calc->worksheetIndex;
+  if (field >= 0 && field < 7) {
+    strcpy(state.varLabel, DEPR_LABELS[field]);
+  }
+
+  switch (field) {
+  case 0:
+    state.varValue = calc->depreciation.life;
+    break;
+  case 1:
+    state.varValue = (double)calc->depreciation.startMonth;
+    break;
+  case 2:
+    state.varValue = calc->depreciation.cost;
+    break;
+  case 3:
+    state.varValue = calc->depreciation.salvage;
+    break;
+  case 4:
+    state.varValue = (double)year;
+    break;
+  case 5:
+    /* Compute depreciation using the method */
+    state.varValue = 0; /* Would call depr_calculate here */
+    state.isComputed = 1;
+    break;
+  case 6:
+    /* Remaining book value */
+    state.varValue = 0;
+    state.isComputed = 1;
+    break;
+  default:
+    state.varValue = 0;
+    break;
+  }
+
+  (void)method; /* Used in actual calculation */
+  display_render(&state, calc);
 }
 
 void display_draw_stat_worksheet(Calculator *calc, int showResults) {
-  (void)calc;
-  (void)showResults;
-  /* To be implemented with statistics display */
+  DisplayState state;
+  display_init(&state);
+  state.currentWorksheet = WS_STATISTICS;
+
+  if (showResults) {
+    /* Show computed statistics */
+    static const char *STAT_RESULT_LABELS[] = {"n",  "x̄",  "Sx",
+                                               "σx", "Σx", "Σx²"};
+    int field = calc->worksheetIndex;
+
+    if (field >= 0 && field < 6) {
+      strcpy(state.varLabel, STAT_RESULT_LABELS[field]);
+    }
+
+    /* Would compute from stat_calc_1var */
+    state.varValue = (double)calc->statistics.count;
+    state.isComputed = 1;
+  } else {
+    /* Data entry mode */
+    char label[8];
+    snprintf(label, sizeof(label), "X%02d", calc->statistics.count + 1);
+    strcpy(state.varLabel, label);
+    state.varValue = 0;
+  }
+
+  display_render(&state, calc);
 }
 
 void display_draw_breakeven_worksheet(Calculator *calc, int currentField) {
-  (void)calc;
-  (void)currentField;
-  /* To be implemented with breakeven fields */
+  static const char *BE_LABELS[] = {"FC", "VC", "P", "Q", "PFT"};
+
+  DisplayState state;
+  display_init(&state);
+  state.currentWorksheet = WS_BREAKEVEN;
+
+  if (currentField >= 0 && currentField < 5) {
+    strcpy(state.varLabel, BE_LABELS[currentField]);
+  }
+
+  switch (currentField) {
+  case 0:
+    state.varValue = calc->breakeven.fixedCost;
+    break;
+  case 1:
+    state.varValue = calc->breakeven.variableCost;
+    break;
+  case 2:
+    state.varValue = calc->breakeven.price;
+    break;
+  case 3:
+    state.varValue = calc->breakeven.quantity;
+    state.isComputed = 1;
+    break;
+  case 4:
+    state.varValue = calc->breakeven.profit;
+    state.isComputed = 1;
+    break;
+  default:
+    state.varValue = 0;
+    break;
+  }
+
+  display_render(&state, calc);
+}
+
+/* Profit margin worksheet display */
+void display_draw_margin_worksheet(Calculator *calc, int currentField) {
+  static const char *PM_LABELS[] = {"CST", "SEL", "MAR", "MU"};
+
+  DisplayState state;
+  display_init(&state);
+  state.currentWorksheet = WS_PROFIT_MARGIN;
+
+  if (currentField >= 0 && currentField < 4) {
+    strcpy(state.varLabel, PM_LABELS[currentField]);
+  }
+
+  switch (currentField) {
+  case 0:
+    state.varValue = calc->profitMargin.cost;
+    break;
+  case 1:
+    state.varValue = calc->profitMargin.selling;
+    break;
+  case 2:
+    state.varValue = calc->profitMargin.margin;
+    state.isComputed = 1;
+    break;
+  case 3:
+    state.varValue = calc->profitMargin.markup;
+    state.isComputed = 1;
+    break;
+  default:
+    state.varValue = 0;
+    break;
+  }
+
+  display_render(&state, calc);
 }

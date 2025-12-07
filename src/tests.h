@@ -15,19 +15,19 @@
  * Test Result Structure
  * ============================================================ */
 typedef struct {
-    const char *name;       /* Test name */
-    const char *level;      /* CFA Level (I, II, III, BOSS) */
-    int passed;             /* 1 = passed, 0 = failed */
-    double expected;        /* Expected result */
-    double actual;          /* Actual result */
-    double tolerance;       /* Acceptable error margin */
+  const char *name;  /* Test name */
+  const char *level; /* CFA Level (I, II, III, BOSS) */
+  int passed;        /* 1 = passed, 0 = failed */
+  double expected;   /* Expected result */
+  double actual;     /* Actual result */
+  double tolerance;  /* Acceptable error margin */
 } TestResult;
 
 typedef struct {
-    int total;              /* Total tests run */
-    int passed;             /* Tests passed */
-    int failed;             /* Tests failed */
-    TestResult results[30]; /* Individual results - increased for new tests */
+  int total;              /* Total tests run */
+  int passed;             /* Tests passed */
+  int failed;             /* Tests failed */
+  TestResult results[50]; /* Individual results - increased for new tests */
 } TestSuite;
 
 /* ============================================================
@@ -92,21 +92,21 @@ TestResult test_q10_retirement_planning(void);
  * ============================================================ */
 
 /* Level I - Set 2 */
-TestResult test_s2_q1_annuity_due_fv(void);      /* $2000/yr BGN mode, 8%, 15yrs */
-TestResult test_s2_q2_npv_project(void);          /* NPV with 3 cash flows */
-TestResult test_s2_q3_bond_ytm(void);             /* Bond YTM calculation */
+TestResult test_s2_q1_annuity_due_fv(void); /* $2000/yr BGN mode, 8%, 15yrs */
+TestResult test_s2_q2_npv_project(void);    /* NPV with 3 cash flows */
+TestResult test_s2_q3_bond_ytm(void);       /* Bond YTM calculation */
 
 /* Level II - Set 2 */
-TestResult test_s2_q4_bond_dirty_price(void);     /* Dirty price calculation */
-TestResult test_s2_q5_multistage_ddm(void);       /* Dividend Discount Model */
-TestResult test_s2_q6_sample_stddev(void);        /* Sample standard deviation */
+TestResult test_s2_q4_bond_dirty_price(void); /* Dirty price calculation */
+TestResult test_s2_q5_multistage_ddm(void);   /* Dividend Discount Model */
+TestResult test_s2_q6_sample_stddev(void);    /* Sample standard deviation */
 
 /* Level III - Set 2 */
-TestResult test_s2_q7_duration_convexity(void);   /* Duration & Convexity */
-TestResult test_s2_q8_portfolio_stddev(void);     /* Two-asset portfolio risk */
-TestResult test_s2_q9_forward_valuation(void);    /* Forward contract value */
+TestResult test_s2_q7_duration_convexity(void); /* Duration & Convexity */
+TestResult test_s2_q8_portfolio_stddev(void);   /* Two-asset portfolio risk */
+TestResult test_s2_q9_forward_valuation(void);  /* Forward contract value */
 
 /* Hardest - Set 2 */
-TestResult test_s2_q10_horizon_yield(void);       /* Total return calculation */
+TestResult test_s2_q10_horizon_yield(void); /* Total return calculation */
 
 #endif /* TESTS_H */

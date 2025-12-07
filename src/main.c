@@ -10,6 +10,7 @@
 #include "config.h"
 #include "input.h"
 #include "memory.h"
+#include "screens.h"
 #include "tests.h"
 #include "tvm.h"
 #include "types.h"
@@ -192,14 +193,66 @@ static int process_key(int key) {
     return 0;
   }
 
+  /* Handle SHIFT key (toggle 2nd mode) */
+  if (key == KEY_SHIFT) {
+    calc.is2ndActive = !calc.is2ndActive;
+    return 0;
+  }
+
+  /* Handle 2ND + F-key combinations */
+  if (calc.is2ndActive) {
+    switch (key) {
+    case KEY_F2: /* 2ND + I/Y = P/Y settings */
+      calc.currentScreen = SCREEN_SETTINGS;
+      calc.worksheetIndex = 0;
+      calc.is2ndActive = 0;
+      return 0;
+    case KEY_F3: /* 2ND + PV = AMORT */
+      calc.currentScreen = SCREEN_AMORT;
+      calc.worksheetIndex = 0;
+      calc.is2ndActive = 0;
+      return 0;
+    case KEY_F4: /* 2ND + PMT = BGN/END toggle */
+      calc.tvm.mode = (calc.tvm.mode == TVM_END) ? TVM_BEGIN : TVM_END;
+      calc.is2ndActive = 0;
+      return 0;
+    case KEY_F5: /* 2ND + FV = CLR TVM */
+      calc_reset_tvm(&calc);
+      calc.is2ndActive = 0;
+      return 0;
+    case KEY_F6: /* 2ND + CPT = QUIT worksheet */
+      calc.currentScreen = SCREEN_TVM;
+      calc.worksheetIndex = 0;
+      calc.is2ndActive = 0;
+      return 0;
+    }
+  }
+
+  /* Handle UP/DOWN arrows for worksheet navigation */
+  if (key == KEY_UP) {
+    if (calc.worksheetIndex > 0) {
+      calc.worksheetIndex--;
+    }
+    return 0;
+  }
+  if (key == KEY_DOWN) {
+    calc.worksheetIndex++;
+    return 0;
+  }
+
   /* Handle EXE (same as pressing current variable) */
   if (key == KEY_EXE) {
     /* Could be used for confirmation in worksheets */
     return 0;
   }
 
-  /* Handle EXIT (return to menu) */
+  /* Handle EXIT (return to TVM or exit app) */
   if (key == KEY_EXIT) {
+    if (calc.currentScreen != SCREEN_TVM) {
+      calc.currentScreen = SCREEN_TVM;
+      calc.worksheetIndex = 0;
+      return 0;
+    }
     return 1; /* Exit the app */
   }
 
@@ -224,7 +277,7 @@ static void render_screen(void) {
 
   if (calc.state == STATE_ERROR || error_is_active(&calc)) {
     /* TI BA II Plus style: just show "Error" in display area */
-    snprintf(displayBuffer, sizeof(displayBuffer), "%s", 
+    snprintf(displayBuffer, sizeof(displayBuffer), "%s",
              calc.errorMessage[0] ? calc.errorMessage : "Error");
   } else if (calc.state == STATE_WAIT_STO) {
     /* Show STO prompt - waiting for digit 0-9 */
@@ -304,11 +357,11 @@ int main(int argc, char *argv[]) {
   /* Check for test mode */
   if (argc > 1 && strcmp(argv[1], "--test") == 0) {
     printf("\n🧪 Running CFA Calculator Validation Tests...\n");
-    
+
     TestSuite suite;
     tests_run_all(&suite);
     tests_print_results(&suite);
-    
+
     return (suite.failed == 0) ? 0 : 1;
   }
 
@@ -323,7 +376,8 @@ int main(int argc, char *argv[]) {
   printf("╠══════════════════════════════════════════════════════════════╣\n");
   printf("║  Run with --test flag to execute CFA validation tests       ║\n");
   printf("║  Example: ./fx-ba-test --test                                ║\n");
-  printf("╚══════════════════════════════════════════════════════════════╝\n\n");
+  printf(
+      "╚══════════════════════════════════════════════════════════════╝\n\n");
 
   /* Demo: TVM Mortgage calculation */
   printf("═══ Demo: Q1 Mortgage Payment ═══\n");

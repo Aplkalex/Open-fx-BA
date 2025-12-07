@@ -997,6 +997,186 @@ TestResult test_edge_single_data_point(void) {
   return result;
 }
 
+/* ============================================================
+ * Additional Worksheet Tests
+ * ============================================================ */
+
+#include "date.h"
+#include "profit.h"
+
+/**
+ * Amortization: Payment schedule for 12 months
+ * $100,000 loan, 6% annual, 30 year mortgage
+ * Check first year interest/principal split
+ */
+TestResult test_amort_schedule(void) {
+  TestResult result;
+  init_test_result(&result, "Amort Schedule", "WS", 8422.61, 1.00);
+
+  /* Using TVM amort range: P1=1, P2=12 for first year */
+  double rate = 0.06 / 12.0; /* Monthly rate */
+  double pv = 100000.0;
+  double pmt = -599.55; /* Approximate monthly payment */
+
+  double totalPrincipal, totalInterest, endBalance;
+  tvm_amort_range(1, 12, 360, rate, pv, pmt, &totalPrincipal, &totalInterest,
+                  &endBalance);
+
+  result.actual = -totalInterest; /* Interest paid in first year */
+  result.passed =
+      tests_check_value(result.expected, result.actual, result.tolerance);
+
+  return result;
+}
+
+/**
+ * Breakeven: Calculate breakeven quantity
+ * FC=$50,000, VC=$20/unit, P=$50/unit
+ * Q = FC / (P - VC) = 50000 / 30 = 1666.67
+ */
+TestResult test_breakeven_quantity(void) {
+  TestResult result;
+  init_test_result(&result, "Breakeven Q", "WS", 1666.67, 0.01);
+
+  Breakeven be;
+  breakeven_init(&be);
+  be.fixedCost = 50000.0;
+  be.variableCostPerUnit = 20.0;
+  be.pricePerUnit = 50.0;
+
+  result.actual = breakeven_calc_quantity(&be);
+  result.passed =
+      tests_check_value(result.expected, result.actual, result.tolerance);
+
+  return result;
+}
+
+/**
+ * Breakeven: Calculate profit at given quantity
+ * Q=2000 units, FC=$50,000, VC=$20, P=$50
+ * PFT = Q * (P - VC) - FC = 2000 * 30 - 50000 = $10,000
+ */
+TestResult test_breakeven_profit(void) {
+  TestResult result;
+  init_test_result(&result, "Breakeven PFT", "WS", 10000.00, 0.01);
+
+  Breakeven be;
+  breakeven_init(&be);
+  be.fixedCost = 50000.0;
+  be.variableCostPerUnit = 20.0;
+  be.pricePerUnit = 50.0;
+  be.quantity = 2000.0;
+
+  result.actual = breakeven_calc_profit(&be);
+  result.passed =
+      tests_check_value(result.expected, result.actual, result.tolerance);
+
+  return result;
+}
+
+/**
+ * Margin: Calculate gross margin percentage
+ * Cost=$80, Selling=$100
+ * Margin = (100-80)/100 * 100 = 20%
+ */
+TestResult test_margin_calc(void) {
+  TestResult result;
+  init_test_result(&result, "Margin Calc", "WS", 20.00, 0.01);
+
+  ProfitMargin pm;
+  margin_init(&pm);
+  pm.cost = 80.0;
+  pm.sellingPrice = 100.0;
+
+  result.actual = margin_calc_margin(&pm);
+  result.passed =
+      tests_check_value(result.expected, result.actual, result.tolerance);
+
+  return result;
+}
+
+/**
+ * Markup: Calculate markup percentage
+ * Cost=$80, Selling=$100
+ * Markup = (100-80)/80 * 100 = 25%
+ */
+TestResult test_markup_calc(void) {
+  TestResult result;
+  init_test_result(&result, "Markup Calc", "WS", 25.00, 0.01);
+
+  ProfitMargin pm;
+  margin_init(&pm);
+  pm.cost = 80.0;
+  pm.sellingPrice = 100.0;
+
+  result.actual = margin_calc_markup(&pm);
+  result.passed =
+      tests_check_value(result.expected, result.actual, result.tolerance);
+
+  return result;
+}
+
+/**
+ * Date: Days between dates (ACT mode)
+ * Jan 1, 2024 to Dec 31, 2024 = 365 days (leap year)
+ */
+TestResult test_date_diff_act(void) {
+  TestResult result;
+  init_test_result(&result, "Date ACT Days", "WS", 365.00, 0.01);
+
+  Date d1 = {2024, 1, 1};
+  Date d2 = {2024, 12, 31};
+
+  result.actual = (double)date_diff(&d1, &d2, DATE_MODE_ACT);
+  result.passed =
+      tests_check_value(result.expected, result.actual, result.tolerance);
+
+  return result;
+}
+
+/**
+ * Date: Days between dates (30/360 mode)
+ * Jan 1 to Dec 31 = 360 days in 30/360 convention
+ */
+TestResult test_date_diff_360(void) {
+  TestResult result;
+  init_test_result(&result, "Date 360 Days", "WS", 360.00, 0.01);
+
+  Date d1 = {2024, 1, 1};
+  Date d2 = {2024, 12, 31};
+
+  result.actual = (double)date_diff(&d1, &d2, DATE_MODE_360);
+  result.passed =
+      tests_check_value(result.expected, result.actual, result.tolerance);
+
+  return result;
+}
+
+/**
+ * Regression: Linear regression r-squared
+ * Perfect linear data: (1,2), (2,4), (3,6), (4,8), (5,10)
+ * Should have r² = 1.0
+ */
+TestResult test_regression_linear(void) {
+  TestResult result;
+  init_test_result(&result, "Linear r-sq", "WS", 1.00, 0.01);
+
+  StatData stat;
+  stat_init(&stat);
+  stat_add_xy(&stat, 1.0, 2.0);
+  stat_add_xy(&stat, 2.0, 4.0);
+  stat_add_xy(&stat, 3.0, 6.0);
+  stat_add_xy(&stat, 4.0, 8.0);
+  stat_add_xy(&stat, 5.0, 10.0);
+
+  RegressionResult reg = stat_regression(&stat, REG_LINEAR);
+  result.actual = reg.rSq;
+  result.passed =
+      tests_check_value(result.expected, result.actual, result.tolerance);
+
+  return result;
+}
+
 void tests_run_all(TestSuite *suite) {
   memset(suite, 0, sizeof(TestSuite));
 
@@ -1055,6 +1235,17 @@ void tests_run_all(TestSuite *suite) {
   suite->results[suite->total++] = test_edge_irr_no_sign_change();
   suite->results[suite->total++] = test_edge_large_number();
   suite->results[suite->total++] = test_edge_single_data_point();
+
+  /* ========== Additional Worksheet Tests ========== */
+
+  suite->results[suite->total++] = test_amort_schedule();
+  suite->results[suite->total++] = test_breakeven_quantity();
+  suite->results[suite->total++] = test_breakeven_profit();
+  suite->results[suite->total++] = test_margin_calc();
+  suite->results[suite->total++] = test_markup_calc();
+  suite->results[suite->total++] = test_date_diff_act();
+  suite->results[suite->total++] = test_date_diff_360();
+  suite->results[suite->total++] = test_regression_linear();
 
   /* Count results */
   suite->passed = 0;

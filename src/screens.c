@@ -114,16 +114,22 @@ void screen_draw(Calculator *calc, ScreenState *state) {
     screen_draw_tvm(calc, state);
     break;
   case SCREEN_CASH_FLOW:
-    /* Draw CF worksheet */
-    screen_draw_tvm(calc, state); /* Placeholder */
+    screen_draw_worksheet(calc, state, NULL, 0);
     break;
   case SCREEN_BOND:
-    /* Draw bond worksheet */
-    screen_draw_tvm(calc, state); /* Placeholder */
+    screen_draw_worksheet(calc, state, NULL, 0);
     break;
   case SCREEN_DEPRECIATION:
-    /* Draw depreciation worksheet */
-    screen_draw_tvm(calc, state); /* Placeholder */
+    screen_draw_worksheet(calc, state, NULL, 0);
+    break;
+  case SCREEN_STATISTICS:
+    screen_draw_worksheet(calc, state, NULL, 0);
+    break;
+  case SCREEN_DATE:
+    screen_draw_worksheet(calc, state, NULL, 0);
+    break;
+  case SCREEN_AMORT:
+    screen_draw_worksheet(calc, state, NULL, 0);
     break;
   default:
     screen_draw_tvm(calc, state);

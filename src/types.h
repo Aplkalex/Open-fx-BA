@@ -128,6 +128,33 @@ typedef struct {
   int regType; /* 0=LIN, 1=LOG, 2=EXP, 3=PWR */
 } StatDataSimple;
 
+/* Breakeven analysis data */
+typedef struct {
+  double fixedCost;    /* FC: Fixed costs */
+  double variableCost; /* VC: Variable cost per unit */
+  double price;        /* P: Selling price per unit */
+  double quantity;     /* Q: Quantity */
+  double profit;       /* PFT: Profit */
+} BreakevenData;
+
+/* Profit margin data */
+typedef struct {
+  double cost;    /* CST: Cost price */
+  double selling; /* SEL: Selling price */
+  double margin;  /* MAR: Margin % */
+  double markup;  /* MU: Markup % */
+} ProfitMarginData;
+
+/* Amortization worksheet state */
+typedef struct {
+  int p1;           /* Starting period */
+  int p2;           /* Ending period */
+  double balance;   /* BAL: Remaining balance */
+  double principal; /* PRN: Principal paid */
+  double interest;  /* INT: Interest paid */
+  int currentField; /* 0=P1, 1=P2, 2=BAL, 3=PRN, 4=INT */
+} AmortState;
+
 /* ============================================================
  * Calculator State (Global app state)
  * ============================================================ */
@@ -151,6 +178,9 @@ typedef struct {
   DeprData depreciation;
   DateData dateWs;
   StatDataSimple statistics;
+  BreakevenData breakeven;
+  ProfitMarginData profitMargin;
+  AmortState amort;
 
   /* UI State */
   AppState state;
