@@ -31,6 +31,14 @@ SOURCES := \
     src/keyboard.c \
     src/screens.c \
     src/worksheets.c \
+    src/depreciation.c \
+    src/bond.c \
+    src/statistics.c \
+    src/date.c \
+    src/features.c \
+    src/profit.c \
+    src/fonts.c \
+    src/display.c \
     src/tests.c
 
 # Headers
@@ -45,6 +53,12 @@ HEADERS := \
     src/keyboard.h \
     src/screens.h \
     src/worksheets.h \
+    src/depreciation.h \
+    src/bond.h \
+    src/statistics.h \
+    src/date.h \
+    src/features.h \
+    src/profit.h \
     src/tests.h
 
 # Object files

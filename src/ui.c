@@ -129,7 +129,7 @@ void ui_draw_right_aligned(int y, const char *text) {
 void ui_draw_display_with_label(const char *label, const char *value) {
   /* Draw label on left side */
   PrintMini(2, MAIN_DISPLAY_Y - 8, label, MINI_OVER);
-  
+
   /* Draw value right-aligned below */
   ui_draw_right_aligned(MAIN_DISPLAY_Y + 4, value);
 }
@@ -175,7 +175,7 @@ void ui_draw_worksheet_hints(int showUp, int showDown) {
 
 /* ============================================================
  * Error Display (TI BA II Plus style)
- * 
+ *
  * Shows "Error" in the main display area without clearing
  * the calculator state. User presses any key to clear.
  * ============================================================ */
@@ -206,7 +206,7 @@ void ui_show_memory_stored(int index, double value) {
   char buf[24];
   snprintf(buf, sizeof(buf), "M%d=", index);
   PrintMini(2, MAIN_DISPLAY_Y - 8, buf, MINI_OVER);
-  
+
   char valBuf[16];
   format_number(value, valBuf, sizeof(valBuf));
   ui_draw_right_aligned(MAIN_DISPLAY_Y + 4, valBuf);
@@ -219,7 +219,7 @@ void ui_show_memory_recalled(int index, double value) {
   char buf[24];
   snprintf(buf, sizeof(buf), "RCL M%d", index);
   PrintMini(2, MAIN_DISPLAY_Y - 8, buf, MINI_OVER);
-  
+
   char valBuf[16];
   format_number(value, valBuf, sizeof(valBuf));
   ui_draw_right_aligned(MAIN_DISPLAY_Y + 4, valBuf);
@@ -265,7 +265,80 @@ void format_number(double value, char *buffer, int maxLen) {
 }
 
 void format_with_commas(double value, char *buffer, int maxLen) {
-  /* For now, just use regular format */
-  /* TODO: Add comma separators for large numbers */
-  format_number(value, buffer, maxLen);
+  /*
+   * Format number with thousand separators.
+   * Examples: 1234567.89 -> "1,234,567.89"
+   *          -50000 -> "-50,000"
+   */
+
+  /* First, format without commas */
+  char temp[32];
+  format_number(value, temp, sizeof(temp));
+
+  /* Handle simple cases */
+  int len = strlen(temp);
+  if (len >= maxLen || len < 4) {
+    strncpy(buffer, temp, maxLen - 1);
+    buffer[maxLen - 1] = '\0';
+    return;
+  }
+
+  /* Find decimal point position (or end of string) */
+  char *decimalPos = strchr(temp, '.');
+  int intPartLen = decimalPos ? (int)(decimalPos - temp) : len;
+
+  /* Handle negative sign */
+  int isNegative = (temp[0] == '-');
+  int digitStart = isNegative ? 1 : 0;
+  int numDigits = intPartLen - digitStart;
+
+  /* Calculate number of commas needed */
+  int numCommas = (numDigits - 1) / 3;
+
+  /* Check if result fits in buffer */
+  int resultLen = len + numCommas;
+  if (resultLen >= maxLen) {
+    strncpy(buffer, temp, maxLen - 1);
+    buffer[maxLen - 1] = '\0';
+    return;
+  }
+
+  /* Build result with commas */
+  int srcIdx = 0;
+  int dstIdx = 0;
+
+  /* Copy negative sign if present */
+  if (isNegative) {
+    buffer[dstIdx++] = temp[srcIdx++];
+    numDigits--;
+  }
+
+  /* Copy integer part with commas */
+  int digitCount = 0;
+  int firstGroupSize = numDigits % 3;
+  if (firstGroupSize == 0)
+    firstGroupSize = 3;
+
+  while (srcIdx < intPartLen) {
+    buffer[dstIdx++] = temp[srcIdx++];
+    digitCount++;
+
+    /* Insert comma after each group of 3, except after last group */
+    if (srcIdx < intPartLen) {
+      if (digitCount == firstGroupSize ||
+          (digitCount > firstGroupSize &&
+           (digitCount - firstGroupSize) % 3 == 0)) {
+        buffer[dstIdx++] = ',';
+      }
+    }
+  }
+
+  /* Copy decimal part if present */
+  if (decimalPos) {
+    while (*decimalPos) {
+      buffer[dstIdx++] = *decimalPos++;
+    }
+  }
+
+  buffer[dstIdx] = '\0';
 }

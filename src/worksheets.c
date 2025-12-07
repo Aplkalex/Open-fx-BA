@@ -14,15 +14,15 @@
  * Error Messages (TI BA II Plus style - simple)
  * ============================================================ */
 static const char *ERROR_MESSAGES[] = {
-    "",       /* 0: No error */
-    "Error",  /* 1: No solution exists */
-    "Error",  /* 2: Overflow */
-    "Error",  /* 3: Iteration limit */
-    "Error",  /* 4: Invalid input */
-    "Error",  /* 5: Multiple IRR */
-    "Error",  /* 6: Not enough data */
-    "Error",  /* 7: Invalid date */
-    "Error"   /* 8: Memory full */
+    "",      /* 0: No error */
+    "Error", /* 1: No solution exists */
+    "Error", /* 2: Overflow */
+    "Error", /* 3: Iteration limit */
+    "Error", /* 4: Invalid input */
+    "Error", /* 5: Multiple IRR */
+    "Error", /* 6: Not enough data */
+    "Error", /* 7: Invalid date */
+    "Error"  /* 8: Memory full */
 };
 
 const char *get_error_message(int errorCode) {
@@ -213,6 +213,70 @@ double ws_get_value(WorksheetState *ws, Calculator *calc) {
     }
     break;
   }
+  case WS_BOND: {
+    /* Bond worksheet: SDT, CPN, RDT, RV, YLD, PRI, AI, DUR */
+    switch (ws->currentIndex) {
+    case 0:
+      return (double)calc->bond.settlementDate;
+    case 1:
+      return calc->bond.couponRate;
+    case 2:
+      return (double)calc->bond.maturityDate;
+    case 3:
+      return calc->bond.redemption;
+    case 4:
+      return calc->bond.yield;
+    case 5:
+      return calc->bond.price;
+    case 6:
+      return 0.0; /* AI - computed, not stored */
+    case 7:
+      return 0.0; /* Duration - computed, not stored */
+    }
+    break;
+  }
+  case WS_DEPRECIATION: {
+    /* Depreciation: LIF, MON, CST, SAL, YR, DEP, RBV */
+    switch (ws->currentIndex) {
+    case 0:
+      return calc->depreciation.life;
+    case 1:
+      return (double)calc->depreciation.startMonth;
+    case 2:
+      return calc->depreciation.cost;
+    case 3:
+      return calc->depreciation.salvage;
+    case 4:
+      return (double)calc->depreciation.currentYear;
+    case 5:
+      return 0.0; /* DEP - computed */
+    case 6:
+      return 0.0; /* RBV - computed */
+    }
+    break;
+  }
+  case WS_DATE: {
+    /* Date: DT1, DT2, DBD */
+    switch (ws->currentIndex) {
+    case 0:
+      return (double)calc->dateWs.dt1;
+    case 1:
+      return (double)calc->dateWs.dt2;
+    case 2:
+      return (double)calc->dateWs.dbd;
+    }
+    break;
+  }
+  case WS_STATISTICS: {
+    /* Statistics: X entry, n, mean, Sx, σx */
+    switch (ws->currentIndex) {
+    case 0:
+      return 0.0; /* Current X entry */
+    case 1:
+      return (double)calc->statistics.count;
+    }
+    break;
+  }
   default:
     break;
   }
@@ -247,6 +311,73 @@ void ws_set_value(WorksheetState *ws, Calculator *calc, double value) {
     }
     break;
   }
+  case WS_BOND: {
+    /* Bond worksheet: SDT, CPN, RDT, RV, YLD, PRI */
+    switch (ws->currentIndex) {
+    case 0:
+      calc->bond.settlementDate = (int)value;
+      break;
+    case 1:
+      calc->bond.couponRate = value;
+      break;
+    case 2:
+      calc->bond.maturityDate = (int)value;
+      break;
+    case 3:
+      calc->bond.redemption = value;
+      break;
+    case 4:
+      calc->bond.yield = value;
+      break;
+    case 5:
+      calc->bond.price = value;
+      break;
+    }
+    break;
+  }
+  case WS_DEPRECIATION: {
+    /* Depreciation: LIF, MON, CST, SAL, YR */
+    switch (ws->currentIndex) {
+    case 0:
+      calc->depreciation.life = value;
+      break;
+    case 1:
+      calc->depreciation.startMonth = (int)value;
+      break;
+    case 2:
+      calc->depreciation.cost = value;
+      break;
+    case 3:
+      calc->depreciation.salvage = value;
+      break;
+    case 4:
+      calc->depreciation.currentYear = (int)value;
+      break;
+    }
+    break;
+  }
+  case WS_DATE: {
+    /* Date: DT1, DT2, DBD */
+    switch (ws->currentIndex) {
+    case 0:
+      calc->dateWs.dt1 = (int)value;
+      break;
+    case 1:
+      calc->dateWs.dt2 = (int)value;
+      break;
+    case 2:
+      calc->dateWs.dbd = (int)value;
+      break;
+    }
+    break;
+  }
+  case WS_STATISTICS: {
+    /* Statistics: add data point */
+    if (ws->currentIndex == 0 && calc->statistics.count < 50) {
+      calc->statistics.xData[calc->statistics.count++] = value;
+    }
+    break;
+  }
   default:
     break;
   }
@@ -257,7 +388,7 @@ void ws_set_value(WorksheetState *ws, Calculator *calc, double value) {
  * ============================================================ */
 
 void display_error(int errorCode) {
-  /* 
+  /*
    * TI BA II Plus style error display:
    * Simply shows "Error" in the display area.
    * Does NOT clear TVM/memory values.
@@ -273,7 +404,7 @@ void display_error(int errorCode) {
  * TI-Style Navigation Hint Strings
  * ============================================================ */
 
-const char* ws_get_nav_hint(WorksheetState *ws) {
+const char *ws_get_nav_hint(WorksheetState *ws) {
   /* Return appropriate navigation hint based on position */
   if (ws->currentIndex == 0 && ws->totalItems > 1) {
     return "[v]";
