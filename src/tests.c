@@ -11,7 +11,6 @@
 
 #include "tests.h"
 #include "cashflow.h"
-#include "config.h"
 #include "input.h"
 #include "tvm.h"
 #include <math.h>
@@ -870,6 +869,134 @@ TestResult test_statistics_1var(void) {
   return result;
 }
 
+/* ============================================================
+ * Edge Case Tests
+ * ============================================================ */
+
+/**
+ * Edge Case: Zero Interest Rate
+ * N=10, I/Y=0, PV=1000, FV=0
+ * PMT should be -100 (simple division)
+ */
+TestResult test_edge_zero_rate(void) {
+  TestResult result;
+  init_test_result(&result, "Edge: Zero Rate", "EDGE", -100.00, 0.01);
+
+  Calculator calc;
+  calc_init(&calc, MODEL_STANDARD);
+  calc.tvm.N = 10;
+  calc.tvm.I_Y = 0.0;
+  calc.tvm.PV = 1000;
+  calc.tvm.FV = 0;
+  calc.tvm.P_Y = 1;
+  calc.tvm.C_Y = 1;
+  calc.tvm.mode = TVM_END;
+
+  result.actual = tvm_solve_for(&calc, TVM_VAR_PMT);
+  result.passed =
+      tests_check_value(result.expected, result.actual, result.tolerance);
+
+  return result;
+}
+
+/**
+ * Edge Case: PMT with zero PV and FV
+ * N=10, I/Y=5, PV=0, FV=0
+ * PMT should be 0
+ */
+TestResult test_edge_pmt_zero_pv_fv(void) {
+  TestResult result;
+  init_test_result(&result, "Edge: PMT Zero PV/FV", "EDGE", 0.00, 0.01);
+
+  Calculator calc;
+  calc_init(&calc, MODEL_STANDARD);
+  calc.tvm.N = 10;
+  calc.tvm.I_Y = 5.0;
+  calc.tvm.PV = 0;
+  calc.tvm.FV = 0;
+  calc.tvm.P_Y = 1;
+  calc.tvm.C_Y = 1;
+  calc.tvm.mode = TVM_END;
+
+  result.actual = tvm_solve_for(&calc, TVM_VAR_PMT);
+  result.passed =
+      tests_check_value(result.expected, result.actual, result.tolerance);
+
+  return result;
+}
+
+/**
+ * Edge Case: IRR with no sign change (should return error)
+ * All positive cash flows - no IRR exists
+ * Expected: errorCode = ERR_NO_SOLUTION (1)
+ */
+TestResult test_edge_irr_no_sign_change(void) {
+  TestResult result;
+  init_test_result(&result, "Edge: IRR No Solution", "EDGE", 1.00, 0.01);
+
+  CashFlowList cf;
+  cf_init(&cf);
+  cf_set_cf0(&cf, 1000); /* All positive - no sign change */
+  cf_add(&cf, 500, 1);
+  cf_add(&cf, 500, 1);
+
+  int errorCode;
+  cf_irr(&cf, &errorCode);
+  result.actual = (double)errorCode; /* Should be ERR_NO_SOLUTION (1) */
+  result.passed =
+      tests_check_value(result.expected, result.actual, result.tolerance);
+
+  return result;
+}
+
+/**
+ * Edge Case: Large number handling
+ * Verify FV calculation with large values
+ * PV=1000000, I/Y=5, N=30, PMT=0
+ * FV = -1000000 * (1.05)^30 = -4,321,942.38
+ */
+TestResult test_edge_large_number(void) {
+  TestResult result;
+  init_test_result(&result, "Edge: Large Numbers", "EDGE", -4321942.38, 1.00);
+
+  Calculator calc;
+  calc_init(&calc, MODEL_STANDARD);
+  calc.tvm.N = 30;
+  calc.tvm.I_Y = 5.0;
+  calc.tvm.PV = 1000000;
+  calc.tvm.PMT = 0;
+  calc.tvm.P_Y = 1;
+  calc.tvm.C_Y = 1;
+  calc.tvm.mode = TVM_END;
+
+  result.actual = tvm_solve_for(&calc, TVM_VAR_FV);
+  result.passed =
+      tests_check_value(result.expected, result.actual, result.tolerance);
+
+  return result;
+}
+
+/**
+ * Edge Case: Single data point statistics
+ * With only 1 data point, stdDevS is undefined (divide by 0)
+ * But mean should still be correct
+ */
+TestResult test_edge_single_data_point(void) {
+  TestResult result;
+  init_test_result(&result, "Edge: Single Point", "EDGE", 42.00, 0.01);
+
+  StatData stat;
+  stat_init(&stat);
+  stat_add_x(&stat, 42.0);
+
+  Stat1VarResult r = stat_calc_1var(&stat);
+  result.actual = r.mean; /* Mean of single point should be the point itself */
+  result.passed =
+      tests_check_value(result.expected, result.actual, result.tolerance);
+
+  return result;
+}
+
 void tests_run_all(TestSuite *suite) {
   memset(suite, 0, sizeof(TestSuite));
 
@@ -920,6 +1047,14 @@ void tests_run_all(TestSuite *suite) {
   suite->results[suite->total++] = test_depreciation_db();
   suite->results[suite->total++] = test_bond_price();
   suite->results[suite->total++] = test_statistics_1var();
+
+  /* ========== Edge Case Tests ========== */
+
+  suite->results[suite->total++] = test_edge_zero_rate();
+  suite->results[suite->total++] = test_edge_pmt_zero_pv_fv();
+  suite->results[suite->total++] = test_edge_irr_no_sign_change();
+  suite->results[suite->total++] = test_edge_large_number();
+  suite->results[suite->total++] = test_edge_single_data_point();
 
   /* Count results */
   suite->passed = 0;

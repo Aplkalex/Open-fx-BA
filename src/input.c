@@ -251,7 +251,7 @@ void state_handle_sto_key(Calculator *calc) {
   if (calc->state == STATE_ERROR) {
     error_clear(calc);
   }
-  
+
   calc->state = STATE_WAIT_STO;
   calc->stateTimeout = STO_RCL_TIMEOUT;
 }
@@ -265,7 +265,7 @@ void state_handle_rcl_key(Calculator *calc) {
   if (calc->state == STATE_ERROR) {
     error_clear(calc);
   }
-  
+
   calc->state = STATE_WAIT_RCL;
   calc->stateTimeout = STO_RCL_TIMEOUT;
 }
@@ -284,22 +284,21 @@ void state_handle_memory_digit(Calculator *calc, int digit) {
     /* Store current display value to memory register */
     double value = input_get_value(calc);
     memory_store(&calc->memory, digit, value);
-    
+
     /* Brief feedback: show what was stored */
     /* (The UI will show "M#=value" briefly) */
     calc->state = STATE_RESULT;
     calc->stateTimeout = 0;
-  } 
-  else if (calc->state == STATE_WAIT_RCL) {
+  } else if (calc->state == STATE_WAIT_RCL) {
     /* Recall value from memory register to display */
     double value = memory_recall(&calc->memory, digit);
-    
+
     /* Update display buffer with recalled value */
     format_number(value, calc->inputBuffer, INPUT_BUFFER_SIZE);
     calc->inputLength = strlen(calc->inputBuffer);
     calc->isNegative = (value < 0) ? 1 : 0;
     calc->hasDecimal = (strchr(calc->inputBuffer, '.') != NULL) ? 1 : 0;
-    
+
     calc->state = STATE_RESULT;
     calc->stateTimeout = 0;
   }
@@ -334,7 +333,7 @@ void state_cancel_sto_rcl(Calculator *calc) {
 
 /* ============================================================
  * Error Handling (TI BA II Plus style)
- * 
+ *
  * Key principle: Show "Error" in display, but DON'T clear
  * the user's TVM/memory values. User can press any key to
  * clear error and continue.
@@ -347,34 +346,34 @@ void state_cancel_sto_rcl(Calculator *calc) {
 void error_set(Calculator *calc, int errorCode, const char *message) {
   calc->errorCode = errorCode;
   calc->state = STATE_ERROR;
-  
+
   if (message != NULL) {
     strncpy(calc->errorMessage, message, sizeof(calc->errorMessage) - 1);
     calc->errorMessage[sizeof(calc->errorMessage) - 1] = '\0';
   } else {
-    /* Default error messages based on code */
+    /* Default error messages based on code - differentiated for better UX */
     switch (errorCode) {
     case ERR_NO_SOLUTION:
-      strcpy(calc->errorMessage, "Error");
+      strcpy(calc->errorMessage, "No Solution");
       break;
     case ERR_OVERFLOW:
-      strcpy(calc->errorMessage, "Error");
+      strcpy(calc->errorMessage, "Overflow");
       break;
     case ERR_ITERATION:
-      strcpy(calc->errorMessage, "Error");
+      strcpy(calc->errorMessage, "No Converge");
       break;
     case ERR_INVALID_INPUT:
-      strcpy(calc->errorMessage, "Error");
+      strcpy(calc->errorMessage, "Bad Input");
       break;
     case ERR_IRR_MULTIPLE:
-      strcpy(calc->errorMessage, "Error");
+      strcpy(calc->errorMessage, "Multi IRR");
       break;
     default:
       strcpy(calc->errorMessage, "Error");
       break;
     }
   }
-  
+
   /* Copy error message to display buffer */
   strcpy(calc->inputBuffer, calc->errorMessage);
   calc->inputLength = strlen(calc->inputBuffer);
@@ -388,7 +387,7 @@ void error_clear(Calculator *calc) {
   calc->errorCode = ERR_NONE;
   calc->errorMessage[0] = '\0';
   calc->state = STATE_INPUT;
-  
+
   /* Reset display to 0, but keep TVM values */
   input_clear(calc);
 }
