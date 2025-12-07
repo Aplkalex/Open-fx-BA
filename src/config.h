@@ -36,9 +36,10 @@
 
 /* Newton-Raphson iteration settings
  * Reduced iterations since analytical derivatives converge faster */
-#define MAX_ITERATIONS 50   /* Reduced from 100 - analytical derivatives need fewer */
+#define MAX_ITERATIONS                                                         \
+  50 /* Reduced from 100 - analytical derivatives need fewer */
 #define TOLERANCE 1e-10
-#define INITIAL_GUESS 0.1   /* 10% as starting point for I/Y */
+#define INITIAL_GUESS 0.1 /* 10% as starting point for I/Y */
 
 /* ============================================================
  * Input Limits
@@ -47,24 +48,24 @@
 #define MAX_DECIMAL_PLACES 9
 
 /* ============================================================
- * Feature Flags (Pro vs Standard)
+ * Feature Flags (Pro vs Standard) - use CFG_ prefix to avoid enum collision
  * ============================================================ */
 
 /* Cash Flow features */
-#define FEATURE_NPV 1 /* Both */
-#define FEATURE_IRR 1 /* Both */
-#define FEATURE_NFV 1 /* Pro only */
-#define FEATURE_PB 1  /* Pro only - Payback Period */
-#define FEATURE_DPB 1 /* Pro only - Discounted Payback */
+#define CFG_FEATURE_NPV 1 /* Both */
+#define CFG_FEATURE_IRR 1 /* Both */
+#define CFG_FEATURE_NFV 1 /* Pro only */
+#define CFG_FEATURE_PB 1  /* Pro only - Payback Period */
+#define CFG_FEATURE_DPB 1 /* Pro only - Discounted Payback */
 
 /* Bond features */
-#define FEATURE_BOND_PRICE 1 /* Both */
-#define FEATURE_BOND_YIELD 1 /* Both */
-#define FEATURE_MOD_DUR 1    /* Pro only - Modified Duration */
+#define CFG_FEATURE_BOND_PRICE 1 /* Both */
+#define CFG_FEATURE_BOND_YIELD 1 /* Both */
+#define CFG_FEATURE_MOD_DUR 1    /* Pro only - Modified Duration */
 
 /* Other Pro features */
-#define FEATURE_MIRR 1      /* Pro only - Modified IRR */
-#define FEATURE_BREAKEVEN 1 /* Pro only */
+#define CFG_FEATURE_MIRR 1      /* Pro only - Modified IRR */
+#define CFG_FEATURE_BREAKEVEN 1 /* Pro only */
 
 /* ============================================================
  * Key Code Mappings (Casio-specific)
@@ -107,13 +108,13 @@
 #define KEY_SHIFT 0x78
 
 /* STO/RCL key mappings (using OPTN and VARS keys) */
-#define KEY_STO 0x68   /* OPTN key -> STO */
-#define KEY_RCL 0x58   /* VARS key -> RCL */
+#define KEY_STO 0x68 /* OPTN key -> STO */
+#define KEY_RCL 0x58 /* VARS key -> RCL */
 
 /* ============================================================
  * Timing Constants
  * ============================================================ */
-#define STO_RCL_TIMEOUT 40   /* ~4 seconds at 10 ticks/sec */
+#define STO_RCL_TIMEOUT 40    /* ~4 seconds at 10 ticks/sec */
 #define ERROR_DISPLAY_MS 2000 /* Error message display time */
 
 #endif /* CONFIG_H */

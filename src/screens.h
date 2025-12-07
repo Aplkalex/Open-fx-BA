@@ -19,15 +19,17 @@
  * Screen/Worksheet Types
  * ============================================================ */
 typedef enum {
-  SCREEN_TVM,          /* Main TVM screen (N, I/Y, PV, PMT, FV) */
-  SCREEN_CASH_FLOW,    /* Cash Flow worksheet */
-  SCREEN_BOND,         /* Bond worksheet */
-  SCREEN_DEPRECIATION, /* Depreciation worksheet */
-  SCREEN_AMORT,        /* Amortization worksheet */
-  SCREEN_STATISTICS,   /* Statistics worksheet */
-  SCREEN_DATE,         /* Date calculation */
-  SCREEN_MEMORY,       /* Memory operations */
-  SCREEN_SETTINGS      /* P/Y, C/Y, BGN/END settings */
+  SCREEN_TVM,           /* Main TVM screen (N, I/Y, PV, PMT, FV) */
+  SCREEN_CASH_FLOW,     /* Cash Flow worksheet */
+  SCREEN_BOND,          /* Bond worksheet */
+  SCREEN_DEPRECIATION,  /* Depreciation worksheet */
+  SCREEN_AMORT,         /* Amortization worksheet */
+  SCREEN_STATISTICS,    /* Statistics worksheet */
+  SCREEN_DATE,          /* Date calculation */
+  SCREEN_BREAKEVEN,     /* Breakeven analysis (Pro only) */
+  SCREEN_PROFIT_MARGIN, /* Profit margin (Pro only) */
+  SCREEN_MEMORY,        /* Memory operations */
+  SCREEN_SETTINGS       /* P/Y, C/Y, BGN/END settings */
 } ScreenType;
 
 /* ============================================================

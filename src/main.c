@@ -8,6 +8,7 @@
 
 #include "cashflow.h"
 #include "config.h"
+#include "features.h"
 #include "input.h"
 #include "memory.h"
 #include "screens.h"
@@ -223,6 +224,50 @@ static int process_key(int key) {
     case KEY_F6: /* 2ND + CPT = QUIT worksheet */
       calc.currentScreen = SCREEN_TVM;
       calc.worksheetIndex = 0;
+      calc.is2ndActive = 0;
+      return 0;
+    }
+
+    /* Worksheet access via 2ND + number keys */
+    switch (key) {
+    case KEY_7: /* 2ND + 7 = CF (Cash Flow) */
+      calc.currentScreen = SCREEN_CASH_FLOW;
+      calc.worksheetIndex = 0;
+      calc.is2ndActive = 0;
+      return 0;
+    case KEY_8: /* 2ND + 8 = BOND */
+      calc.currentScreen = SCREEN_BOND;
+      calc.worksheetIndex = 0;
+      calc.is2ndActive = 0;
+      return 0;
+    case KEY_9: /* 2ND + 9 = DEPR (Pro only) */
+      if (feature_is_available(calc.model, FEATURE_DEPR_DB)) {
+        calc.currentScreen = SCREEN_DEPRECIATION;
+        calc.worksheetIndex = 0;
+      }
+      /* Standard mode: only SL/SYD available, still accessible */
+      if (calc.model == MODEL_STANDARD) {
+        calc.currentScreen = SCREEN_DEPRECIATION;
+        calc.worksheetIndex = 0;
+      }
+      calc.is2ndActive = 0;
+      return 0;
+    case KEY_4: /* 2ND + 4 = STAT */
+      calc.currentScreen = SCREEN_STATISTICS;
+      calc.worksheetIndex = 0;
+      calc.is2ndActive = 0;
+      return 0;
+    case KEY_5: /* 2ND + 5 = DATE */
+      calc.currentScreen = SCREEN_DATE;
+      calc.worksheetIndex = 0;
+      calc.is2ndActive = 0;
+      return 0;
+    case KEY_6: /* 2ND + 6 = BRKEVN (Pro only) */
+      if (feature_is_available(calc.model, FEATURE_BREAKEVEN)) {
+        calc.currentScreen = SCREEN_BREAKEVEN;
+        calc.worksheetIndex = 0;
+      }
+      /* If Standard mode - do nothing, feature not available */
       calc.is2ndActive = 0;
       return 0;
     }
