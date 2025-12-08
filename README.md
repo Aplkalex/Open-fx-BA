@@ -6,7 +6,7 @@
 
 ![C](https://img.shields.io/badge/C-00599C?style=for-the-badge&logo=c&logoColor=white)
 ![fxSDK](https://img.shields.io/badge/fxSDK-CASIO_SDK-4a4a4a?style=for-the-badge)
-![Tests](https://img.shields.io/badge/TESTS-38%2F38_PASSING-success?style=for-the-badge)
+![Tests](https://img.shields.io/badge/TESTS-39%2F39_PASSING-success?style=for-the-badge)
 
 ![Compatible](https://img.shields.io/badge/COMPATIBLE_WITH-CASIO_FX--9860G_SERIES-fffcf2?style=for-the-badge&labelColor=333)
 
@@ -20,7 +20,7 @@ An open source add-in for Casio fx-9750GIII / fx-9860GIII / fx-9860G series, imp
 | **TVM** | N, I/Y, PV, PMT, FV with P/Y, C/Y, BGN/END |
 | **Cash Flow** | NPV, IRR |
 | **Amortization** | P1, P2, BAL, PRN, INT |
-| **Bond** | Price, Yield, Accrued Interest |
+| **Bond** | Price, Yield (YTM/YTC), Accrued Interest, Callable bonds |
 | **Depreciation** | Straight Line (SL), Sum-of-Years (SYD) |
 | **Date** | Days between dates (ACT and 30/360) |
 | **Statistics** | 1-var, 2-var, Linear Regression |

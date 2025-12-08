@@ -845,6 +845,35 @@ TestResult test_bond_price(void) {
 }
 
 /**
+ * Bond: Callable Bond - Yield to Call
+ * 10-year bond, 6% coupon, callable in 5 years at 102
+ * Settlement: 2024-01-01, Maturity: 2034-01-01, Call: 2029-01-01
+ * Price: 105.00, Expected YTC ≈ 5.23%
+ */
+TestResult test_bond_callable(void) {
+  TestResult result;
+  init_test_result(&result, "Bond Callable YTC", "WS", 5.23, 0.10);
+
+  BondInput input;
+  input.settlementDate = 20240101;
+  input.maturityDate = 20340101;
+  input.callDate = 20290101; /* Callable in 5 years */
+  input.callPrice = 102.0;
+  input.couponRate = 6.0;
+  input.redemption = 100.0;
+  input.frequency = COUPON_SEMI_ANNUAL;
+  input.dayCount = DAY_COUNT_30_360;
+  input.bondType = BOND_TYPE_YTC; /* Calculate Yield to Call */
+
+  int errorCode = 0;
+  result.actual = bond_yield(&input, 105.0, &errorCode);
+  result.passed =
+      tests_check_value(result.expected, result.actual, result.tolerance);
+
+  return result;
+}
+
+/**
  * Statistics: 1-Variable Mean
  * Data: 10, 20, 30, 40, 50
  * Expected Mean = 30.0
@@ -1246,6 +1275,7 @@ void tests_run_all(TestSuite *suite) {
   suite->results[suite->total++] = test_date_diff_act();
   suite->results[suite->total++] = test_date_diff_360();
   suite->results[suite->total++] = test_regression_linear();
+  suite->results[suite->total++] = test_bond_callable();
 
   /* Count results */
   suite->passed = 0;

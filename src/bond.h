@@ -17,6 +17,14 @@ typedef enum {
 } DayCountConvention;
 
 /* ============================================================
+ * Bond Type (YTM vs YTC)
+ * ============================================================ */
+typedef enum {
+  BOND_TYPE_YTM = 0, /* Yield to Maturity */
+  BOND_TYPE_YTC = 1  /* Yield to Call */
+} BondType;
+
+/* ============================================================
  * Coupon Frequency
  * ============================================================ */
 typedef enum {
@@ -36,6 +44,12 @@ typedef struct {
   /* Maturity date */
   int maturityDate;
 
+  /* Call date (0 if non-callable) */
+  int callDate;
+
+  /* Call price (% of par, e.g., 102.5 for 102.5% of par) */
+  double callPrice;
+
   /* Annual coupon rate (%) */
   double couponRate;
 
@@ -47,6 +61,9 @@ typedef struct {
 
   /* Day count convention */
   DayCountConvention dayCount;
+
+  /* Bond type: YTM or YTC */
+  BondType bondType;
 } BondInput;
 
 /* ============================================================

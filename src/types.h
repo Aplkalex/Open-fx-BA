@@ -91,14 +91,15 @@ typedef struct {
 
 /* Bond worksheet data */
 typedef struct {
-  int settlementDate; /* YYYYMMDD */
-  int maturityDate;   /* YYYYMMDD */
-  double couponRate;  /* Annual coupon % */
-  double redemption;  /* Usually 100 */
-  int frequency;      /* 1, 2, 4, or 12 */
-  int dayCount;       /* 0=ACT/ACT, 1=30/360 */
+  int settlementDate; /* Settlement date YYYYMMDD */
+  double couponRate;  /* Coupon rate (%) */
+  int maturityDate;   /* Maturity date YYYYMMDD */
+  int callDate;       /* Call date YYYYMMDD (0 if non-callable) */
+  double callPrice;   /* Call price (% of par) */
+  double redemption;  /* Redemption value */
   double price;       /* Computed or input */
   double yield;       /* Computed or input */
+  int bondType;       /* 0=YTM, 1=YTC */
 } BondData;
 
 /* Depreciation worksheet data */

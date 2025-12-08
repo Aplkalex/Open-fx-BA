@@ -127,23 +127,43 @@ double bond_price(BondInput *input, double yield) {
    *   C = coupon payment per period
    *   r = yield per period
    *   n = number of periods
-   *   R = redemption value
+   *   R = redemption value (or call price for YTC)
+   *
+   * For callable bonds (YTC mode):
+   *   - Use callDate instead of maturityDate
+   *   - Use callPrice instead of redemption
    */
+
+  /* Determine effective maturity and redemption based on bond type */
+  int effectiveMaturity = input->maturityDate;
+  double effectiveRedemption = input->redemption;
+
+  if (input->bondType == BOND_TYPE_YTC && input->callDate > 0) {
+    effectiveMaturity = input->callDate;
+    effectiveRedemption = input->callPrice;
+  }
+
+  /* Temporarily modify input for calculation */
+  int originalMaturity = input->maturityDate;
+  input->maturityDate = effectiveMaturity;
 
   double couponPerPeriod = input->couponRate / (double)input->frequency;
   double yieldPerPeriod = yield / 100.0 / (double)input->frequency;
   double n = coupon_periods_remaining(input);
-  double redemption = input->redemption;
+
+  /* Restore original maturity */
+  input->maturityDate = originalMaturity;
 
   if (yieldPerPeriod == 0.0) {
     /* No discounting */
-    return couponPerPeriod * n + redemption;
+    return couponPerPeriod * n + effectiveRedemption;
   }
 
   double discountFactor = pow(1.0 + yieldPerPeriod, -n);
   double annuityFactor = (1.0 - discountFactor) / yieldPerPeriod;
 
-  double price = couponPerPeriod * annuityFactor + redemption * discountFactor;
+  double price =
+      couponPerPeriod * annuityFactor + effectiveRedemption * discountFactor;
 
   return price;
 }
