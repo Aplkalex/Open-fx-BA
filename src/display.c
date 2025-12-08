@@ -16,8 +16,6 @@
  */
 
 #include "display.h"
-#include "config.h"
-#include "ui.h"
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -61,7 +59,7 @@ void display_render(DisplayState *state, Calculator *calc) {
     PrintMini(40, VALUE_Y, get_error_message(state->errorCode), MINI_REV);
   } else {
     display_draw_var_prompt(state->varLabel, state->isComputed);
-    display_draw_value(state->varValue, 0);
+    display_draw_value(calc, state->varValue, 0);
   }
 
   display_draw_indicator(state);
@@ -89,6 +87,15 @@ void display_draw_status_bar(DisplayState *state, Calculator *calc) {
   /* 2nd indicator (center-right) */
   if (state->secondActive) {
     PrintMini(70, STATUS_Y, "2nd", MINI_REV);
+  }
+
+  /* Format indicator (after 2nd) */
+  if (calc->state == STATE_WAIT_FORMAT) {
+    PrintMini(90, STATUS_Y, "FMT>", MINI_REV);
+  } else if (calc->displayDecimals >= 0) {
+    char fmtBuf[8];
+    snprintf(fmtBuf, sizeof(fmtBuf), "D%d", calc->displayDecimals);
+    PrintMini(90, STATUS_Y, fmtBuf, MINI_OVER);
   }
 
   /* Worksheet indicator (right) */
@@ -151,21 +158,21 @@ void display_draw_var_prompt(const char *label, int isComputed) {
  * Value Display (Right-Aligned)
  * ============================================================ */
 
-void display_draw_value(double value, int isNegative) {
+void display_draw_value(Calculator *calc, double value, int isNegative) {
   char buffer[24];
 
-  /* Format the number */
+  /* Format the number based on displayDecimals setting */
   if (fabs(value) >= 1e10 || (fabs(value) < 1e-6 && value != 0)) {
     /* Scientific notation for very large/small numbers */
     snprintf(buffer, sizeof(buffer), "%.6e", value);
   } else {
-    /* Normal decimal format */
-    snprintf(buffer, sizeof(buffer), "%.6f", value);
-
-    /* Remove trailing zeros after decimal */
-    int len = strlen(buffer);
-    while (len > 1 && buffer[len - 1] == '0' && buffer[len - 2] != '.') {
-      buffer[--len] = '\0';
+    /* Apply decimal format setting */
+    if (calc->displayDecimals >= 0) {
+      /* Fixed decimal places (0-9) */
+      snprintf(buffer, sizeof(buffer), "%.*f", calc->displayDecimals, value);
+    } else {
+      /* Floating mode - up to 10 digits total */
+      snprintf(buffer, sizeof(buffer), "%.10g", value);
     }
   }
 
@@ -497,14 +504,14 @@ void display_draw_amort_worksheet(Calculator *calc, int p1, int p2) {
 }
 
 void display_draw_bond_worksheet(Calculator *calc, int currentField) {
-  static const char *BOND_LABELS[] = {"SDT", "CPN", "RDT", "CDT", "CPR",
-                                      "RV",  "YLD", "PRI", "AI",  "DUR"};
+  static const char *BOND_LABELS[] = {"SDT", "CPN", "RDT", "CDT", "CPR", "RV",
+                                      "FRQ", "DAY", "YLD", "PRI", "AI",  "DUR"};
 
   DisplayState state;
   display_init(&state);
   state.currentWorksheet = WS_BOND;
 
-  if (currentField >= 0 && currentField < 10) {
+  if (currentField >= 0 && currentField < 12) {
     strcpy(state.varLabel, BOND_LABELS[currentField]);
   }
 
@@ -527,17 +534,23 @@ void display_draw_bond_worksheet(Calculator *calc, int currentField) {
   case 5: /* RV - Redemption Value */
     state.varValue = calc->bond.redemption;
     break;
-  case 6: /* YLD - Yield (YTM or YTC depending on mode) */
+  case 6: /* FRQ - Frequency (1,2,4,12) */
+    state.varValue = (double)calc->bond.frequency;
+    break;
+  case 7: /* DAY - Day Count (0=ACT, 1=360) */
+    state.varValue = (double)calc->bond.dayCount;
+    break;
+  case 8: /* YLD - Yield (YTM or YTC depending on mode) */
     state.varValue = calc->bond.yield;
     break;
-  case 7: /* PRI - Price */
+  case 9: /* PRI - Price */
     state.varValue = calc->bond.price;
     break;
-  case 8: /* AI - Accrued Interest (computed) */
+  case 10: /* AI - Accrued Interest (computed) */
     state.varValue = 0;
     state.isComputed = 1;
     break;
-  case 9: /* DUR - Duration (computed) */
+  case 11: /* DUR - Duration (computed) */
     state.varValue = 0;
     state.isComputed = 1;
     break;
@@ -551,8 +564,8 @@ void display_draw_bond_worksheet(Calculator *calc, int currentField) {
 
 void display_draw_depr_worksheet(Calculator *calc, int year,
                                  DepreciationMethod method) {
-  static const char *DEPR_LABELS[] = {"LIF", "M01", "CST", "SAL",
-                                      "YR",  "DEP", "RBV"};
+  static const char *DEPR_LABELS[] = {"MTH", "LIF", "M01", "CST",
+                                      "SAL", "YR",  "DEP", "RBV"};
 
   DisplayState state;
   display_init(&state);
@@ -560,33 +573,32 @@ void display_draw_depr_worksheet(Calculator *calc, int year,
 
   /* Show current field based on worksheetIndex */
   int field = calc->worksheetIndex;
-  if (field >= 0 && field < 7) {
+  if (field >= 0 && field < 8) {
     strcpy(state.varLabel, DEPR_LABELS[field]);
   }
 
   switch (field) {
   case 0:
-    state.varValue = calc->depreciation.life;
+    state.varValue = (double)calc->depreciation.method;
     break;
   case 1:
-    state.varValue = (double)calc->depreciation.startMonth;
+    state.varValue = calc->depreciation.life;
     break;
   case 2:
-    state.varValue = calc->depreciation.cost;
+    state.varValue = (double)calc->depreciation.startMonth;
     break;
   case 3:
-    state.varValue = calc->depreciation.salvage;
+    state.varValue = calc->depreciation.cost;
     break;
   case 4:
-    state.varValue = (double)year;
+    state.varValue = calc->depreciation.salvage;
     break;
   case 5:
-    /* Compute depreciation using the method */
-    state.varValue = 0; /* Would call depr_calculate here */
-    state.isComputed = 1;
+    state.varValue = (double)year;
     break;
   case 6:
-    /* Remaining book value */
+  case 7:
+    /* DEP and RBV - computed */
     state.varValue = 0;
     state.isComputed = 1;
     break;

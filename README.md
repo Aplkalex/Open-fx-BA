@@ -39,13 +39,13 @@ An open source add-in for Casio fx-9750GIII / fx-9860GIII / fx-9860G series, imp
 ## Specification Coverage
 
 ### Standard Mode Specification
-- Time-Value-of-Money worksheet with P/Y, C/Y, BEGIN/END, and amortization schedules (annuity, mortgage, lease, savings scenarios)  
-- Cash-flow worksheet supporting up to 24+ uneven cash flows with four-digit frequencies, computing NPV and IRR  
-- Bond worksheet with Actual/Actual or 30/360 day-count methods for price/yield and accrued interest  
-- Depreciation schedules (SL, SYD) including book value and remaining depreciable amount plus partial-year handling  
-- Date worksheet (days between dates, partial years), TVM BGN/END toggle, ten-digit display, ten user memories  
-- List-based one- and two-variable statistics with linear/log/exponential/power regression and forecasting  
-- Prompted TI-style display showing current variable/label, percent-difference calculations, and math functions delegated to the calculator OS
+- Time-Value-of-Money worksheet with P/Y, C/Y, BEGIN/END, amortization schedules, and annuity/mortgage/lease/saving scenarios  
+- Cash-flow worksheet supporting the TI-spec 24 uneven flows (32 internally) with four-digit frequencies, computing NPV and IRR  
+- Bond worksheet with Actual/Actual or 30/360 day-count methods for clean price, yield-to-maturity or yield-to-call, and accrued interest  
+- Depreciation schedules with SL, SYD, declining-balance, and DB with straight-line crossover, including book value and remaining depreciable amount plus partial-year handling  
+- Date worksheet (days between dates, partial years), BGN/END payment setting, ten-digit display, and ten user memories  
+- List-based one- and two-variable statistics with linear, logarithmic, exponential, and power regression options  
+- Prompted TI-style display showing the active variable/label, 2ND/CPT indicators, and percent difference/change functions (general trig/log/power math uses the fx-9750GIII OS)
 
 ### Professional Mode Specification
 - All Standard features plus cash-flow NFV, MIRR, payback, discounted payback, and cash-flow forecasting  

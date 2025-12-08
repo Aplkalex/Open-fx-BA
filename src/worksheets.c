@@ -213,7 +213,8 @@ double ws_get_value(WorksheetState *ws, Calculator *calc) {
     break;
   }
   case WS_BOND: {
-    /* Bond worksheet: SDT, CPN, RDT, CDT, CPR, RV, YLD, PRI, AI, DUR */
+    /* Bond worksheet: SDT, CPN, RDT, CDT, CPR, RV, FRQ, DAY, YLD, PRI, AI, DUR
+     */
     switch (ws->currentIndex) {
     case 0:
       return (double)calc->bond.settlementDate;
@@ -228,12 +229,16 @@ double ws_get_value(WorksheetState *ws, Calculator *calc) {
     case 5:
       return calc->bond.redemption;
     case 6:
-      return calc->bond.yield;
+      return (double)calc->bond.frequency;
     case 7:
-      return calc->bond.price;
+      return (double)calc->bond.dayCount;
     case 8:
-      return 0.0; /* AI - computed, not stored */
+      return calc->bond.yield;
     case 9:
+      return calc->bond.price;
+    case 10:
+      return 0.0; /* AI - computed, not stored */
+    case 11:
       return 0.0; /* Duration - computed, not stored */
     }
     break;
@@ -315,7 +320,7 @@ void ws_set_value(WorksheetState *ws, Calculator *calc, double value) {
     break;
   }
   case WS_BOND: {
-    /* Bond worksheet: SDT, CPN, RDT, CDT, CPR, RV, YLD, PRI */
+    /* Bond worksheet: SDT, CPN, RDT, CDT, CPR, RV, FRQ, DAY, YLD, PRI */
     switch (ws->currentIndex) {
     case 0:
       calc->bond.settlementDate = (int)value;
@@ -336,9 +341,15 @@ void ws_set_value(WorksheetState *ws, Calculator *calc, double value) {
       calc->bond.redemption = value;
       break;
     case 6:
-      calc->bond.yield = value;
+      calc->bond.frequency = (int)value;
       break;
     case 7:
+      calc->bond.dayCount = (int)value;
+      break;
+    case 8:
+      calc->bond.yield = value;
+      break;
+    case 9:
       calc->bond.price = value;
       break;
     }

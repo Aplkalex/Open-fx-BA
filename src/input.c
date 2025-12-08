@@ -39,6 +39,9 @@ void calc_init(Calculator *calc, CalculatorModel model) {
   /* Initialize input buffer */
   input_clear(calc);
 
+  /* Initialize display format (floating by default) */
+  calc->displayDecimals = -1;
+
   /* Initialize status flags */
   calc->is2ndActive = 0;
   calc->isComputeActive = 0;
@@ -65,6 +68,53 @@ void calc_reset_cashflow(Calculator *calc) {
   calc->cashflow.CF0 = 0.0;
   calc->cashflow.count = 0;
   memset(calc->cashflow.flows, 0, sizeof(calc->cashflow.flows));
+}
+
+void calc_reset_bond(Calculator *calc) {
+  calc->bond.settlementDate = 0;
+  calc->bond.couponRate = 0.0;
+  calc->bond.maturityDate = 0;
+  calc->bond.callDate = 0;
+  calc->bond.callPrice = 0.0;
+  calc->bond.redemption = 100.0; /* Default to par */
+  calc->bond.frequency = 2;      /* Default to semi-annual */
+  calc->bond.dayCount = 0;       /* Default to ACT */
+  calc->bond.price = 0.0;
+  calc->bond.yield = 0.0;
+  calc->bond.bondType = 0; /* Default to YTM */
+}
+
+void calc_reset_depreciation(Calculator *calc) {
+  calc->depreciation.cost = 0.0;
+  calc->depreciation.salvage = 0.0;
+  calc->depreciation.life = 0.0;
+  calc->depreciation.dbRate = 200.0; /* Default DB rate */
+  calc->depreciation.startMonth = 1;
+  calc->depreciation.currentYear = 1;
+}
+
+void calc_reset_statistics(Calculator *calc) {
+  memset(&calc->statistics, 0, sizeof(calc->statistics));
+}
+
+void calc_reset_breakeven(Calculator *calc) {
+  calc->breakeven.fixedCost = 0.0;
+  calc->breakeven.variableCost = 0.0;
+  calc->breakeven.price = 0.0;
+  calc->breakeven.quantity = 0.0;
+  calc->breakeven.profit = 0.0;
+}
+
+void calc_reset_margin(Calculator *calc) {
+  calc->profitMargin.cost = 0.0;
+  calc->profitMargin.selling = 0.0;
+}
+
+void calc_set_format(Calculator *calc, int decimals) {
+  /* Set decimal places: -1 = floating, 0-9 = fixed */
+  if (decimals >= -1 && decimals <= 9) {
+    calc->displayDecimals = decimals;
+  }
 }
 
 /* ============================================================

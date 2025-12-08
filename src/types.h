@@ -23,12 +23,13 @@ typedef enum {
  * Application State (State Machine)
  * ============================================================ */
 typedef enum {
-  STATE_INPUT,    /* User is entering digits */
-  STATE_COMPUTE,  /* CPT pressed, waiting for variable key */
-  STATE_RESULT,   /* Displaying calculation result */
-  STATE_ERROR,    /* Error state */
-  STATE_WAIT_STO, /* STO pressed, waiting for 0-9 */
-  STATE_WAIT_RCL  /* RCL pressed, waiting for 0-9 */
+  STATE_INPUT,      /* User is entering digits */
+  STATE_COMPUTE,    /* CPT pressed, waiting for variable key */
+  STATE_RESULT,     /* Displaying calculation result */
+  STATE_ERROR,      /* Error state */
+  STATE_WAIT_STO,   /* STO pressed, waiting for 0-9 */
+  STATE_WAIT_RCL,   /* RCL pressed, waiting for 0-9 */
+  STATE_WAIT_FORMAT /* Format pressed, waiting for 0-9 or . */
 } AppState;
 
 /* ============================================================
@@ -97,6 +98,8 @@ typedef struct {
   int callDate;       /* Call date YYYYMMDD (0 if non-callable) */
   double callPrice;   /* Call price (% of par) */
   double redemption;  /* Redemption value */
+  int frequency;      /* 1=annual, 2=semi, 4=quarterly, 12=monthly */
+  int dayCount;       /* 0=ACT, 1=30/360 */
   double price;       /* Computed or input */
   double yield;       /* Computed or input */
   int bondType;       /* 0=YTM, 1=YTC */
@@ -188,6 +191,7 @@ typedef struct {
   char inputBuffer[INPUT_BUFFER_SIZE];
   int inputLength;
   int hasDecimal;
+  int displayDecimals; /* -1 = floating, 0-9 = fixed decimal places */
   int isNegative;
 
   /* Status flags for UI indicators */

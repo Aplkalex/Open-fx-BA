@@ -82,7 +82,7 @@ void display_draw_var_prompt(const char *label, int isComputed);
 /**
  * Draw the main value display (right-aligned, large).
  */
-void display_draw_value(double value, int isNegative);
+void display_draw_value(Calculator *calc, double value, int isNegative);
 
 /**
  * Draw indicator line (CPT, COMPUTE, etc.).

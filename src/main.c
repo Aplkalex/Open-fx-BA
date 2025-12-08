@@ -242,16 +242,9 @@ __attribute__((unused)) static int process_key(int key) {
       calc.worksheetIndex = 0;
       calc.is2ndActive = 0;
       return 0;
-    case KEY_9: /* 2ND + 9 = DEPR (Pro only) */
-      if (feature_is_available(calc.model, FEATURE_DEPR_DB)) {
-        calc.currentScreen = SCREEN_DEPRECIATION;
-        calc.worksheetIndex = 0;
-      }
-      /* Standard mode: only SL/SYD available, still accessible */
-      if (calc.model == MODEL_STANDARD) {
-        calc.currentScreen = SCREEN_DEPRECIATION;
-        calc.worksheetIndex = 0;
-      }
+    case KEY_9: /* 2ND + 9 = DEPR */
+      calc.currentScreen = SCREEN_DEPRECIATION;
+      calc.worksheetIndex = 0;
       calc.is2ndActive = 0;
       return 0;
     case KEY_4: /* 2ND + 4 = STAT */
@@ -269,8 +262,72 @@ __attribute__((unused)) static int process_key(int key) {
         calc.currentScreen = SCREEN_BREAKEVEN;
         calc.worksheetIndex = 0;
       }
-      /* If Standard mode - do nothing, feature not available */
       calc.is2ndActive = 0;
+      return 0;
+    case KEY_3: /* 2ND + 3 = PROFIT MARGIN (Pro only) */
+      if (feature_is_available(calc.model, FEATURE_BREAKEVEN)) {
+        calc.currentScreen = SCREEN_PROFIT_MARGIN;
+        calc.worksheetIndex = 0;
+      }
+      calc.is2ndActive = 0;
+      return 0;
+    }
+
+    /* Handle 2ND + CE = CLR Work (clear current worksheet) */
+    if (key == KEY_DEL) { /* CE/C key */
+      switch (calc.currentScreen) {
+      case SCREEN_TVM:
+        calc_reset_tvm(&calc);
+        break;
+      case SCREEN_CASH_FLOW:
+        calc_reset_cashflow(&calc);
+        break;
+      case SCREEN_BOND:
+        calc_reset_bond(&calc);
+        break;
+      case SCREEN_DEPRECIATION:
+        calc_reset_depreciation(&calc);
+        break;
+      case SCREEN_AMORT:
+        calc_reset_tvm(&calc); /* Amort uses TVM data */
+        break;
+      case SCREEN_STATISTICS:
+        calc_reset_statistics(&calc);
+        break;
+      case SCREEN_BREAKEVEN:
+        calc_reset_breakeven(&calc);
+        break;
+      case SCREEN_PROFIT_MARGIN:
+        calc_reset_margin(&calc);
+        break;
+      default:
+        break;
+      }
+      calc.is2ndActive = 0;
+      return 0;
+    }
+
+    /* Handle 2ND + . = Format (set decimal places) */
+    if (key == KEY_DOT) {
+      /* Enter format setting mode - next digit sets decimal places */
+      calc.state = STATE_WAIT_FORMAT;
+      calc.is2ndActive = 0;
+      return 0;
+    }
+  }
+
+  /* Handle Format digit input (after 2ND + .) */
+  if (calc.state == STATE_WAIT_FORMAT) {
+    if (is_digit_key(key, &digit)) {
+      calc_set_format(&calc, digit - '0'); /* 0-9 */
+      calc.state = STATE_INPUT;
+      return 0;
+    } else if (key == KEY_DOT) {
+      calc_set_format(&calc, -1); /* Floating */
+      calc.state = STATE_INPUT;
+      return 0;
+    } else {
+      calc.state = STATE_INPUT; /* Cancel on other key */
       return 0;
     }
   }

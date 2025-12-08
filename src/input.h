@@ -14,6 +14,12 @@
 void calc_init(Calculator *calc, CalculatorModel model);
 void calc_reset_tvm(Calculator *calc);
 void calc_reset_cashflow(Calculator *calc);
+void calc_reset_bond(Calculator *calc);
+void calc_reset_depreciation(Calculator *calc);
+void calc_reset_statistics(Calculator *calc);
+void calc_reset_breakeven(Calculator *calc);
+void calc_reset_margin(Calculator *calc);
+void calc_set_format(Calculator *calc, int decimals);
 
 /* ============================================================
  * Input Buffer Management
