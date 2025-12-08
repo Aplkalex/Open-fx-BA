@@ -1,6 +1,8 @@
 <div align="center">
 
-# Open fx-BA - TI BA II Plus (Standard / Professional) for Casio fx-9750GIII / fx-9860GIII
+# Open fx-BA - TI BA II Plus (Standard / Professional) for Casio fx-9750GIII / fx-9860GIII (fx-9860G)
+
+**An open source TI BA II Plus add-in for Casio fx-9860G series.**
 
 
 ![Release](https://img.shields.io/badge/BETA%20RELEASE-TBD-EBF2F9?style=for-the-badge&labelColor=333)
@@ -14,7 +16,6 @@
 ![C](https://img.shields.io/badge/C-00599C?style=for-the-badge&logo=c&logoColor=white)
 
 
-An open source add-in for Casio fx-9750GIII / fx-9860GIII / fx-9860G series, implementing **TI BA II Plus Standard & Professional** financial calculation functions.
 
 </div>
 <br/>
