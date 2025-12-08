@@ -10,7 +10,6 @@
 #include "config.h"
 #include "features.h"
 #include "input.h"
-#include "memory.h"
 #include "screens.h"
 #include "tests.h"
 #include "tvm.h"
@@ -32,12 +31,15 @@
 /* Stub macros for development without SDK */
 #define GINT_CALL(x)
 typedef int key_event_t;
-static int keydown(int k) { return 0; }
-static key_event_t pollevent(void) {
+__attribute__((unused)) static int keydown(int k) {
+  (void)k;
+  return 0;
+}
+__attribute__((unused)) static key_event_t pollevent(void) {
   key_event_t e = {0};
   return e;
 }
-static void getkey(void) {}
+__attribute__((unused)) static void getkey(void) {}
 #endif
 
 /* ============================================================
@@ -118,7 +120,7 @@ static int fkey_to_tvm(int key, TVMVariable *var) {
  * Process a single key press
  * Returns 0 to continue, 1 to exit
  */
-static int process_key(int key) {
+__attribute__((unused)) static int process_key(int key) {
   char digit;
   TVMVariable var;
 
@@ -308,7 +310,7 @@ static int process_key(int key) {
  * Screen Rendering
  * ============================================================ */
 
-static void render_screen(void) {
+__attribute__((unused)) static void render_screen(void) {
   ui_clear();
 
   /* Draw status bar (includes STO/RCL indicators) */

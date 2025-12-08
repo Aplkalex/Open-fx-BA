@@ -180,8 +180,29 @@ void ui_draw_worksheet_hints(int showUp, int showDown) {
  * the calculator state. User presses any key to clear.
  * ============================================================ */
 void ui_show_error(int errorCode) {
-  /* Display "Error" in the main number area */
-  ui_draw_right_aligned(MAIN_DISPLAY_Y, "Error");
+  /* Display error message based on code */
+  const char *msg;
+  switch (errorCode) {
+  case 1:
+    msg = "No Solution";
+    break;
+  case 2:
+    msg = "Overflow";
+    break;
+  case 3:
+    msg = "No Converge";
+    break;
+  case 4:
+    msg = "Bad Input";
+    break;
+  case 5:
+    msg = "Multi IRR";
+    break;
+  default:
+    msg = "Error";
+    break;
+  }
+  ui_draw_right_aligned(MAIN_DISPLAY_Y, msg);
   ui_refresh();
 }
 
