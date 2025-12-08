@@ -1,11 +1,10 @@
 # Open fx-BA: TI BA II Plus Clone for Casio fx-9750GIII
 
-![Release](https://img.shields.io/badge/RELEASE-BETA_TBD-eae0d5?style=for-the-badge&labelColor=333)
-![License](https://img.shields.io/badge/LICENSE-MIT-98c1d9?style=for-the-badge&labelColor=333)
-![Status](https://img.shields.io/badge/STATUS-ACTIVE-ccd5ae?style=for-the-badge&labelColor=333)
+![Release](https://img.shields.io/badge/RELEASE-BETA_TBD-EBF2F9?style=for-the-badge&labelColor=333)
+![License](https://img.shields.io/badge/LICENSE-MIT-50799E?style=for-the-badge&labelColor=333)
+![Status](https://img.shields.io/badge/STATUS-ACTIVE-A9BD3B?style=for-the-badge&labelColor=333)
 
 ![C](https://img.shields.io/badge/C-00599C?style=for-the-badge&logo=c&logoColor=white)
-![C++](https://img.shields.io/badge/C++-00599C?style=for-the-badge&logo=cplusplus&logoColor=white)
 ![fxSDK](https://img.shields.io/badge/fxSDK-CASIO_SDK-4a4a4a?style=for-the-badge)
 ![Tests](https://img.shields.io/badge/TESTS-38%2F38_PASSING-success?style=for-the-badge)
 
