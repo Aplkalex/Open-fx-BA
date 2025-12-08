@@ -39,7 +39,10 @@ SOURCES := \
     src/profit.c \
     src/fonts.c \
     src/display.c \
-    src/tests.c
+    src/tests.c \
+    src/hal/fxsdk/hal_display_fxsdk.c \
+    src/hal/fxsdk/hal_keyboard_fxsdk.c \
+    src/hal/fxsdk/hal_system_fxsdk.c
 
 # Headers
 HEADERS := \
