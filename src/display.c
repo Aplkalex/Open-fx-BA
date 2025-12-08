@@ -497,44 +497,50 @@ void display_draw_amort_worksheet(Calculator *calc, int p1, int p2) {
 }
 
 void display_draw_bond_worksheet(Calculator *calc, int currentField) {
-  static const char *BOND_LABELS[] = {"SDT", "CPN", "RDT", "RV",
-                                      "YLD", "PRI", "AI",  "DUR"};
+  static const char *BOND_LABELS[] = {"SDT", "CPN", "RDT", "CDT", "CPR",
+                                      "RV",  "YLD", "PRI", "AI",  "DUR"};
 
   DisplayState state;
   display_init(&state);
   state.currentWorksheet = WS_BOND;
 
-  if (currentField >= 0 && currentField < 8) {
+  if (currentField >= 0 && currentField < 10) {
     strcpy(state.varLabel, BOND_LABELS[currentField]);
   }
 
   switch (currentField) {
-  case 0:
+  case 0: /* SDT - Settlement Date */
     state.varValue = (double)calc->bond.settlementDate;
     break;
-  case 1:
+  case 1: /* CPN - Coupon Rate */
     state.varValue = calc->bond.couponRate;
     break;
-  case 2:
+  case 2: /* RDT - Maturity Date */
     state.varValue = (double)calc->bond.maturityDate;
     break;
-  case 3:
+  case 3: /* CDT - Call Date */
+    state.varValue = (double)calc->bond.callDate;
+    break;
+  case 4: /* CPR - Call Price */
+    state.varValue = calc->bond.callPrice;
+    break;
+  case 5: /* RV - Redemption Value */
     state.varValue = calc->bond.redemption;
     break;
-  case 4:
+  case 6: /* YLD - Yield (YTM or YTC depending on mode) */
     state.varValue = calc->bond.yield;
     break;
-  case 5:
+  case 7: /* PRI - Price */
     state.varValue = calc->bond.price;
     break;
-  case 6:
+  case 8: /* AI - Accrued Interest (computed) */
     state.varValue = 0;
     state.isComputed = 1;
-    break; /* AI */
-  case 7:
+    break;
+  case 9: /* DUR - Duration (computed) */
     state.varValue = 0;
     state.isComputed = 1;
-    break; /* DUR */
+    break;
   default:
     state.varValue = 0;
     break;
