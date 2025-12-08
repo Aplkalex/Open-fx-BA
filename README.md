@@ -36,6 +36,24 @@ An open source add-in for Casio fx-9750GIII / fx-9860GIII / fx-9860G series, imp
 | **Profit Margin** | Cost, Selling, Margin%, Markup% |
 | **Statistics+** | 4 regression types, Forecasting |
 
+## Specification Coverage
+
+### Standard Mode Specification
+- Time-Value-of-Money worksheet with P/Y, C/Y, BEGIN/END, and amortization schedules (annuity, mortgage, lease, savings scenarios)  
+- Cash-flow worksheet supporting up to 24+ uneven cash flows with four-digit frequencies, computing NPV and IRR  
+- Bond worksheet with Actual/Actual or 30/360 day-count methods for price/yield and accrued interest  
+- Depreciation schedules (SL, SYD) including book value and remaining depreciable amount plus partial-year handling  
+- Date worksheet (days between dates, partial years), TVM BGN/END toggle, ten-digit display, ten user memories  
+- List-based one- and two-variable statistics with linear/log/exponential/power regression and forecasting  
+- Prompted TI-style display showing current variable/label, percent-difference calculations, and math functions delegated to the calculator OS
+
+### Professional Mode Specification
+- All Standard features plus cash-flow NFV, MIRR, payback, discounted payback, and cash-flow forecasting  
+- Bond duration and modified duration calculations, including yield-to-call mode  
+- Depreciation DB, DB with SL crossover, French SLF/DBF methods, and full depreciation schedules  
+- Breakeven, profit, target profit, percent difference/change, cost/sell/margin/markup worksheets  
+- Extended statistics and forecasting outputs, plus 2ND-key shortcuts matching TI BA II Plus Professional behavior  
+
 ## Quick Start
 
 ### Key Mappings (TI-style)
