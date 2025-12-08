@@ -1,6 +1,6 @@
 <div align="center">
 
-# Open fx-BA - TI BA II Plus (Standard / Professional) for Casio fx-9750GIII / fx-9860GIII (fx-9860G)
+# Open fx-BA - TI BA II Plus for Casio fx-9750GIII / fx-9860GIII (fx-9860G)
 
 **An open source TI BA II Plus add-in for Casio fx-9860G series.**
 
