@@ -1,16 +1,22 @@
+<div align="center">
+
 # Open fx-BA: TI BA II Plus Clone for Casio fx-9750GIII
+
 
 ![Release](https://img.shields.io/badge/RELEASE-BETA_TBD-EBF2F9?style=for-the-badge&labelColor=333)
 ![License](https://img.shields.io/badge/LICENSE-MIT-50799E?style=for-the-badge&labelColor=333)
 ![Status](https://img.shields.io/badge/STATUS-ACTIVE-A9BD3B?style=for-the-badge&labelColor=333)
 
 ![C](https://img.shields.io/badge/C-00599C?style=for-the-badge&logo=c&logoColor=white)
-![fxSDK](https://img.shields.io/badge/fxSDK-CASIO_SDK-4a4a4a?style=for-the-badge)
-![Tests](https://img.shields.io/badge/TESTS-39%2F39_PASSING-success?style=for-the-badge)
+<!--[fxSDK](https://img.shields.io/badge/fxSDK-CASIO_SDK-4a4a4a?style=for-the-badge)-->
+<!--[Tests](https://img.shields.io/badge/TESTS-39%2F39_PASSING-success?style=for-the-badge)-->
 
 ![Compatible](https://img.shields.io/badge/COMPATIBLE_WITH-CASIO_FX--9860G_SERIES-fffcf2?style=for-the-badge&labelColor=333)
 
 An open source add-in for Casio fx-9750GIII / fx-9860GIII / fx-9860G series, implementing **TI BA II Plus Standard & Professional** financial calculation functions.
+
+</div>
+<br/>
 
 ## Features
 
