@@ -82,6 +82,9 @@ void calc_reset_bond(Calculator *calc) {
   calc->bond.price = 0.0;
   calc->bond.yield = 0.0;
   calc->bond.bondType = 0; /* Default to YTM */
+  calc->bond.accruedInterest = 0.0;
+  calc->bond.duration = 0.0;
+  calc->bond.modDuration = 0.0;
 }
 
 void calc_reset_depreciation(Calculator *calc) {
@@ -95,6 +98,7 @@ void calc_reset_depreciation(Calculator *calc) {
 
 void calc_reset_statistics(Calculator *calc) {
   memset(&calc->statistics, 0, sizeof(calc->statistics));
+  calc->statistics.regType = 0; /* Default to linear regression */
 }
 
 void calc_reset_breakeven(Calculator *calc) {

@@ -10,6 +10,101 @@
 #include <string.h>
 
 /* ============================================================
+ * Helpers
+ * ============================================================ */
+
+static CouponFrequency ws_bond_frequency(int freq) {
+  switch (freq) {
+  case 1:
+    return COUPON_ANNUAL;
+  case 4:
+    return COUPON_QUARTERLY;
+  case 12:
+    return COUPON_MONTHLY;
+  case 2:
+  default:
+    return COUPON_SEMI_ANNUAL;
+  }
+}
+
+static DayCountConvention ws_bond_daycount(int dc) {
+  switch (dc) {
+  case 1:
+    return DAY_COUNT_30_360;
+  case 2:
+    return DAY_COUNT_ACT_360;
+  case 3:
+    return DAY_COUNT_ACT_365;
+  case 0:
+  default:
+    return DAY_COUNT_ACT_ACT;
+  }
+}
+
+static int ws_bond_calculate(Calculator *calc, BondResult *result) {
+  BondInput input = {0};
+  input.settlementDate = calc->bond.settlementDate;
+  input.maturityDate = calc->bond.maturityDate;
+  input.callDate = calc->bond.callDate;
+  input.callPrice = (calc->bond.callPrice > 0.0) ? calc->bond.callPrice
+                                                 : calc->bond.redemption;
+  input.couponRate = calc->bond.couponRate;
+  input.redemption = calc->bond.redemption > 0.0 ? calc->bond.redemption : 100.0;
+  input.frequency = ws_bond_frequency(calc->bond.frequency);
+  input.dayCount = ws_bond_daycount(calc->bond.dayCount);
+  input.bondType =
+      (calc->bond.bondType == BOND_TYPE_YTC) ? BOND_TYPE_YTC : BOND_TYPE_YTM;
+
+  *result = bond_calculate(&input, calc->bond.price, calc->bond.yield);
+
+  calc->bond.price = result->price;
+  calc->bond.yield = result->yield;
+  calc->bond.accruedInterest = result->accruedInterest;
+  calc->bond.duration = result->duration;
+  calc->bond.modDuration = result->modDuration;
+
+  return 1;
+}
+
+static int ws_depr_calculate(Calculator *calc, DepreciationResult *result) {
+  if (calc->depreciation.life <= 0.0 || calc->depreciation.currentYear < 1)
+    return 0;
+
+  DepreciationInput input = {0};
+  input.cost = calc->depreciation.cost;
+  input.salvage = calc->depreciation.salvage;
+  input.life = calc->depreciation.life;
+  input.dbRate = calc->depreciation.dbRate;
+  input.startMonth = calc->depreciation.startMonth;
+  input.startYear = 0;
+
+  DepreciationMethod method = (DepreciationMethod)calc->depreciation.method;
+  if (method < 0 || method >= DEPR_COUNT)
+    method = DEPR_SL;
+
+  *result = depr_calculate(&input, method, calc->depreciation.currentYear);
+  return 1;
+}
+
+static void ws_stats_build(const StatDataSimple *simple, StatData *oneVar,
+                           StatData *twoVar) {
+  stat_init(oneVar);
+  stat_init(twoVar);
+
+  for (int i = 0; i < simple->count && i < STAT_MAX_POINTS; i++) {
+    stat_add_x(oneVar, simple->xData[i]);
+    if (simple->hasY[i]) {
+      stat_add_xy(twoVar, simple->xData[i], simple->yData[i]);
+    }
+  }
+
+  twoVar->regType = (simple->regType >= REG_LINEAR &&
+                     simple->regType <= REG_POWER)
+                        ? (RegressionType)simple->regType
+                        : REG_LINEAR;
+}
+
+/* ============================================================
  * Error Messages (TI BA II Plus style - simple)
  * ============================================================ */
 static const char *ERROR_MESSAGES[] = {
@@ -57,7 +152,7 @@ void ws_init(WorksheetState *ws, WorksheetType type) {
     ws->totalItems = 5; /* P1, P2, BAL, PRN, INT */
     break;
   case WS_BOND:
-    ws->totalItems = 8; /* SDT, CPN, RDT, RV, YLD, PRI, AI, DUR */
+    ws->totalItems = 12; /* SDT, CPN, RDT, CDT, CPR, RV, FRQ, DAY, YLD, PRI, AI, DUR */
     break;
   case WS_DEPRECIATION:
     ws->totalItems = 7; /* LIF, M01, CST, SAL, YR, DEP, RBV */
@@ -66,7 +161,7 @@ void ws_init(WorksheetState *ws, WorksheetType type) {
     ws->totalItems = 3; /* DT1, DT2, DBD */
     break;
   case WS_STATISTICS:
-    ws->totalItems = 2; /* X, Y (data entry) */
+    ws->totalItems = 13; /* X, Y, n, x̄, Sx, σx, Σx, Σx², ȳ, Sy, r, a, b */
     break;
   case WS_BREAKEVEN:
     ws->totalItems = 5; /* FC, VC, P, Q, PFT */
@@ -213,8 +308,12 @@ double ws_get_value(WorksheetState *ws, Calculator *calc) {
     break;
   }
   case WS_BOND: {
-    /* Bond worksheet: SDT, CPN, RDT, CDT, CPR, RV, FRQ, DAY, YLD, PRI, AI, DUR
-     */
+    BondResult bondResult = {0};
+    int computed = 0;
+    if (ws->currentIndex >= 8) {
+      computed = ws_bond_calculate(calc, &bondResult);
+    }
+
     switch (ws->currentIndex) {
     case 0:
       return (double)calc->bond.settlementDate;
@@ -233,18 +332,20 @@ double ws_get_value(WorksheetState *ws, Calculator *calc) {
     case 7:
       return (double)calc->bond.dayCount;
     case 8:
-      return calc->bond.yield;
+      return computed ? bondResult.yield : calc->bond.yield;
     case 9:
-      return calc->bond.price;
+      return computed ? bondResult.price : calc->bond.price;
     case 10:
-      return 0.0; /* AI - computed, not stored */
+      return computed ? bondResult.accruedInterest : calc->bond.accruedInterest;
     case 11:
-      return 0.0; /* Duration - computed, not stored */
+      return computed ? bondResult.duration : calc->bond.duration;
     }
     break;
   }
   case WS_DEPRECIATION: {
     /* Depreciation: LIF, MON, CST, SAL, YR, DEP, RBV */
+    DepreciationResult deprResult = {0};
+    int hasDepr = ws_depr_calculate(calc, &deprResult);
     switch (ws->currentIndex) {
     case 0:
       return calc->depreciation.life;
@@ -257,9 +358,9 @@ double ws_get_value(WorksheetState *ws, Calculator *calc) {
     case 4:
       return (double)calc->depreciation.currentYear;
     case 5:
-      return 0.0; /* DEP - computed */
+      return hasDepr ? deprResult.depreciation : 0.0;
     case 6:
-      return 0.0; /* RBV - computed */
+      return hasDepr ? deprResult.bookValueEnd : 0.0;
     }
     break;
   }
@@ -276,12 +377,43 @@ double ws_get_value(WorksheetState *ws, Calculator *calc) {
     break;
   }
   case WS_STATISTICS: {
-    /* Statistics: X entry, n, mean, Sx, σx */
+    StatData oneVar, twoVar;
+    ws_stats_build(&calc->statistics, &oneVar, &twoVar);
+    Stat1VarResult oneRes = stat_calc_1var(&oneVar);
+    Stat2VarResult twoRes = stat_calc_2var(&twoVar);
+    RegressionResult reg = stat_regression(
+        &twoVar,
+        (twoVar.regType >= REG_LINEAR && twoVar.regType <= REG_POWER)
+            ? twoVar.regType
+            : REG_LINEAR);
+
     switch (ws->currentIndex) {
     case 0:
-      return 0.0; /* Current X entry */
+      return 0.0; /* X input placeholder */
     case 1:
-      return (double)calc->statistics.count;
+      return 0.0; /* Y input placeholder */
+    case 2:
+      return (double)oneRes.n;
+    case 3:
+      return oneRes.mean;
+    case 4:
+      return oneRes.stdDevS;
+    case 5:
+      return oneRes.stdDevP;
+    case 6:
+      return oneRes.sum;
+    case 7:
+      return oneRes.sumSq;
+    case 8:
+      return (twoRes.n > 0) ? twoRes.meanY : 0.0;
+    case 9:
+      return (twoRes.n > 0) ? twoRes.stdDevYS : 0.0;
+    case 10:
+      return reg.r;
+    case 11:
+      return reg.a;
+    case 12:
+      return reg.b;
     }
     break;
   }
@@ -392,9 +524,18 @@ void ws_set_value(WorksheetState *ws, Calculator *calc, double value) {
     break;
   }
   case WS_STATISTICS: {
-    /* Statistics: add data point */
-    if (ws->currentIndex == 0 && calc->statistics.count < 50) {
-      calc->statistics.xData[calc->statistics.count++] = value;
+    if (ws->currentIndex == 0) {
+      if (calc->statistics.count >= 50)
+        break;
+      calc->statistics.xData[calc->statistics.count] = value;
+      calc->statistics.yData[calc->statistics.count] = 0.0;
+      calc->statistics.hasY[calc->statistics.count] = 0;
+      calc->statistics.count++;
+    } else if (ws->currentIndex == 1) {
+      if (calc->statistics.count == 0)
+        break;
+      calc->statistics.yData[calc->statistics.count - 1] = value;
+      calc->statistics.hasY[calc->statistics.count - 1] = 1;
     }
     break;
   }

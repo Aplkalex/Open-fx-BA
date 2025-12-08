@@ -92,17 +92,20 @@ typedef struct {
 
 /* Bond worksheet data */
 typedef struct {
-  int settlementDate; /* Settlement date YYYYMMDD */
-  double couponRate;  /* Coupon rate (%) */
-  int maturityDate;   /* Maturity date YYYYMMDD */
-  int callDate;       /* Call date YYYYMMDD (0 if non-callable) */
-  double callPrice;   /* Call price (% of par) */
-  double redemption;  /* Redemption value */
-  int frequency;      /* 1=annual, 2=semi, 4=quarterly, 12=monthly */
-  int dayCount;       /* 0=ACT, 1=30/360 */
-  double price;       /* Computed or input */
-  double yield;       /* Computed or input */
-  int bondType;       /* 0=YTM, 1=YTC */
+  int settlementDate;   /* Settlement date YYYYMMDD */
+  double couponRate;    /* Coupon rate (%) */
+  int maturityDate;     /* Maturity date YYYYMMDD */
+  int callDate;         /* Call date YYYYMMDD (0 if non-callable) */
+  double callPrice;     /* Call price (% of par) */
+  double redemption;    /* Redemption value */
+  int frequency;        /* 1=annual, 2=semi, 4=quarterly, 12=monthly */
+  int dayCount;         /* 0=ACT, 1=30/360 */
+  double price;         /* Computed or input */
+  double yield;         /* Computed or input */
+  int bondType;         /* 0=YTM, 1=YTC */
+  double accruedInterest;
+  double duration;
+  double modDuration;
 } BondData;
 
 /* Depreciation worksheet data */
@@ -128,6 +131,7 @@ typedef struct {
 typedef struct {
   double xData[50];
   double yData[50];
+  int hasY[50];
   int count;
   int regType; /* 0=LIN, 1=LOG, 2=EXP, 3=PWR */
 } StatDataSimple;

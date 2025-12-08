@@ -42,9 +42,9 @@ An open source add-in for Casio fx-9750GIII / fx-9860GIII / fx-9860G series, imp
 - Time-Value-of-Money worksheet with P/Y, C/Y, BEGIN/END, amortization schedules, and annuity/mortgage/lease/saving scenarios  
 - Cash-flow worksheet supporting the TI-spec 24 uneven flows (32 internally) with four-digit frequencies, computing NPV and IRR  
 - Bond worksheet with Actual/Actual or 30/360 day-count methods for clean price, yield-to-maturity or yield-to-call, and accrued interest  
-- Depreciation schedules with SL, SYD, declining-balance, and DB with straight-line crossover, including book value and remaining depreciable amount plus partial-year handling  
+- Depreciation schedules for SL and SYD (book value, remaining depreciation, partial-year handling)  
 - Date worksheet (days between dates, partial years), BGN/END payment setting, ten-digit display, and ten user memories  
-- List-based one- and two-variable statistics with linear, logarithmic, exponential, and power regression options  
+- List-based one- and two-variable statistics with linear regression (other regression models unlocked in Professional mode)  
 - Prompted TI-style display showing the active variable/label, 2ND/CPT indicators, and percent difference/change functions (general trig/log/power math uses the fx-9750GIII OS)
 
 ### Professional Mode Specification
@@ -52,7 +52,7 @@ An open source add-in for Casio fx-9750GIII / fx-9860GIII / fx-9860G series, imp
 - Bond duration and modified duration calculations, including yield-to-call mode  
 - Depreciation DB, DB with SL crossover, French SLF/DBF methods, and full depreciation schedules  
 - Breakeven, profit, target profit, percent difference/change, cost/sell/margin/markup worksheets  
-- Extended statistics and forecasting outputs, plus 2ND-key shortcuts matching TI BA II Plus Professional behavior  
+- Extended statistics (logarithmic, exponential, power regressions, forecasting) and 2ND-key shortcuts matching TI BA II Plus Professional behavior  
 
 ## Quick Start
 
