@@ -10,8 +10,8 @@
 ![Status](https://img.shields.io/badge/STATUS-ACTIVE-A9BD3B?style=for-the-badge&labelColor=333)
 
 ![fx-9750GIII](https://img.shields.io/badge/COMPATIBLE-fx--9750GIII-d6ccc2?style=for-the-badge&labelColor=333)
-![fx-9860GIII](https://img.shields.io/badge/COMPATIBLE-fx--9860GIII-f5ebe0?style=for-the-badge&labelColor=333)
-![fx-9860G](https://img.shields.io/badge/COMPATIBLE-fx--9860G-e3d5ca?style=for-the-badge&labelColor=333)
+![fx-9860GIII](https://img.shields.io/badge/COMPATIBLE-fx--9860GIII-e3d5ca?style=for-the-badge&labelColor=333)
+![fx-9860G](https://img.shields.io/badge/COMPATIBLE-fx--9860G-f5ebe0?style=for-the-badge&labelColor=333)
 
 ![C](https://img.shields.io/badge/C-00599C?style=for-the-badge&logo=c&logoColor=white)
 ![Tests](https://img.shields.io/badge/TESTS-39%2F39_PASSING-success?style=for-the-badge)
