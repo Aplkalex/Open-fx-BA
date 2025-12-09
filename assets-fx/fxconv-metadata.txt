@@ -1,11 +1,11 @@
 icon.png:
-  type: icon-mono
+  type: bopti-image
   name: icon
 
 icon-uns.png:
-  type: icon-mono
+  type: bopti-image
   name: icon_uns
 
 icon-sel.png:
-  type: icon-mono
+  type: bopti-image
   name: icon_sel
