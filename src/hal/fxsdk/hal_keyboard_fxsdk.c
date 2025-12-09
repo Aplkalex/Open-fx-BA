@@ -67,7 +67,7 @@ static HAL_Key map_key(key_event_t event) {
     return HAL_KEY_MUL;
   case KEY_DIV:
     return HAL_KEY_DIV;
-  case KEY_POW:
+  case KEY_POWER:
     return HAL_KEY_POW;
   case KEY_NEG:
     return HAL_KEY_NEG;
@@ -83,7 +83,7 @@ static HAL_Key map_key(key_event_t event) {
 
   case KEY_EXE:
     return HAL_KEY_EXE;
-  case KEY_AC:
+  case KEY_ACON:
     return HAL_KEY_AC;
   case KEY_DEL:
     return HAL_KEY_DEL;
