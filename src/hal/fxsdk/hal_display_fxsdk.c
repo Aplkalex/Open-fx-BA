@@ -16,7 +16,7 @@ void hal_display_refresh(void) { dupdate(); }
 void hal_display_print_text(int x, int y, const char *text, HAL_TextMode mode) {
   if (mode == HAL_TEXT_REVERSE) {
     int width = strlen(text) * 6;
-    drectfill(x, y, x + width, y + 7, C_BLACK);
+    drect(x, y, x + width, y + 7, C_BLACK);
     dtext(x, y, C_WHITE, text);
   } else {
     dtext(x, y, C_BLACK, text);
@@ -32,12 +32,9 @@ void hal_display_set_pixel(int x, int y, int color) {
 }
 
 void hal_display_area_reverse(int x1, int y1, int x2, int y2) {
-  for (int y = y1; y <= y2; y++) {
-    for (int x = x1; x <= x2; x++) {
-      int current = dpixel(x, y, C_NONE);
-      dpixel(x, y, current == C_BLACK ? C_WHITE : C_BLACK);
-    }
-  }
+  /* Use drect with invert mode if available, otherwise skip */
+  /* For now, just draw a black rectangle as placeholder */
+  drect(x1, y1, x2, y2, C_INVERT);
 }
 
 #else
