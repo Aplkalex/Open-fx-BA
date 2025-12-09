@@ -20,6 +20,7 @@ void calc_reset_statistics(Calculator *calc);
 void calc_reset_breakeven(Calculator *calc);
 void calc_reset_margin(Calculator *calc);
 void calc_set_format(Calculator *calc, int decimals);
+void calc_reset_arithmetic(Calculator *calc);
 
 /* ============================================================
  * Input Buffer Management

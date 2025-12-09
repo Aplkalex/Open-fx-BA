@@ -49,6 +49,12 @@ void calc_init(Calculator *calc, CalculatorModel model) {
   calc->stateTimeout = 0;
   calc->worksheetIndex = 0;
 
+  /* Initialize arithmetic state */
+  calc->accumulator = 0.0;
+  calc->pendingOp = 0;
+  calc->hasAccumulator = 0;
+  calc->hasPendingOp = 0;
+
   calc->errorCode = ERR_NONE;
   calc->errorMessage[0] = '\0';
 }
@@ -63,6 +69,12 @@ void calc_reset_tvm(Calculator *calc) {
 
   input_clear(calc);
   calc->state = STATE_INPUT;
+
+  /* Reset arithmetic stack when clearing TVM */
+  calc->accumulator = 0.0;
+  calc->pendingOp = 0;
+  calc->hasAccumulator = 0;
+  calc->hasPendingOp = 0;
 }
 
 void calc_reset_cashflow(Calculator *calc) {
@@ -120,6 +132,13 @@ void calc_set_format(Calculator *calc, int decimals) {
   if (decimals >= -1 && decimals <= 9) {
     calc->displayDecimals = decimals;
   }
+}
+
+void calc_reset_arithmetic(Calculator *calc) {
+  calc->accumulator = 0.0;
+  calc->pendingOp = 0;
+  calc->hasAccumulator = 0;
+  calc->hasPendingOp = 0;
 }
 
 /* ============================================================

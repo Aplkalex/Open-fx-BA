@@ -116,6 +116,7 @@ void ui_draw_display_with_label(const char *label, const char *value) {
  * F-Key Menu
  * ============================================================ */
 void ui_draw_fkey_menu(const char *labels[], int count, int reverse) {
+  (void)reverse; /* Reverse not needed with boxed labels, keep signature for API */
   if (count > 6)
     count = 6;
 
@@ -123,7 +124,24 @@ void ui_draw_fkey_menu(const char *labels[], int count, int reverse) {
 
   for (int i = 0; i < count; i++) {
     int x = i * spacing + 2;
-    draw_text(x, FKEY_MENU_Y, labels[i], reverse);
+    if (labels[i] == NULL || labels[i][0] == '\0')
+      continue;
+
+    /* Draw a small reversed capsule behind the label to mimic TI-style keys */
+    int textLen = strlen(labels[i]);
+    int boxWidth = (textLen * CHAR_WIDTH) + 6;
+    int boxX1 = x - 2;
+    int boxY1 = FKEY_MENU_Y - 2;
+    int boxX2 = boxX1 + boxWidth;
+    int boxY2 = boxY1 + CHAR_HEIGHT + 2;
+
+    if (boxX1 < 0)
+      boxX1 = 0;
+    if (boxX2 > SCREEN_WIDTH)
+      boxX2 = SCREEN_WIDTH;
+
+    hal_display_area_reverse(boxX1, boxY1, boxX2, boxY2);
+    draw_text(x, FKEY_MENU_Y, labels[i], 1);
   }
 }
 

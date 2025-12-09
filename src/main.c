@@ -24,12 +24,102 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 /* ============================================================
  * Global Calculator State
  * ============================================================ */
 static Calculator calc;
+
+static double arithmetic_get_operand(Calculator *calc, int *hasInput) {
+  if (calc->inputLength > 0) {
+    /* Use displayed number */
+    *hasInput = 1;
+    return atof(calc->inputBuffer);
+  }
+  *hasInput = 0;
+  return calc->hasAccumulator ? calc->accumulator : 0.0;
+}
+
+static int arithmetic_apply_pending(Calculator *calc, double operand) {
+  if (!calc->hasPendingOp) {
+    calc->accumulator = operand;
+    calc->hasAccumulator = 1;
+    return 1;
+  }
+
+  double a = calc->accumulator;
+  double result = a;
+
+  switch (calc->pendingOp) {
+  case '+':
+    result = a + operand;
+    break;
+  case '-':
+    result = a - operand;
+    break;
+  case '*':
+    result = a * operand;
+    break;
+  case '/':
+    if (operand == 0.0) {
+      error_set(calc, ERR_INVALID_INPUT, "Div by 0");
+      calc_reset_arithmetic(calc);
+      input_clear(calc);
+      return 0;
+    }
+    result = a / operand;
+    break;
+  default:
+    break;
+  }
+
+  calc->accumulator = result;
+  calc->hasAccumulator = 1;
+  return 1;
+}
+
+static void arithmetic_commit_display(Calculator *calc) {
+  format_number(calc->accumulator, calc->inputBuffer, INPUT_BUFFER_SIZE);
+  calc->inputLength = strlen(calc->inputBuffer);
+  calc->isNegative = (calc->accumulator < 0);
+  calc->hasDecimal = (strchr(calc->inputBuffer, '.') != NULL);
+  calc->state = STATE_RESULT;
+}
+
+static void arithmetic_handle_operator(Calculator *calc, char op) {
+  int hasInput = 0;
+  double operand = arithmetic_get_operand(calc, &hasInput);
+  if (!calc->hasAccumulator && !hasInput) {
+    calc->accumulator = operand;
+    calc->hasAccumulator = 1;
+  } else {
+    if (!arithmetic_apply_pending(calc, operand)) {
+      return;
+    }
+  }
+
+  calc->pendingOp = op;
+  calc->hasPendingOp = 1;
+  arithmetic_commit_display(calc);
+}
+
+static void arithmetic_handle_equals(Calculator *calc) {
+  if (!calc->hasPendingOp && calc->inputLength == 0) {
+    return;
+  }
+
+  int hasInput = 0;
+  double operand = arithmetic_get_operand(calc, &hasInput);
+  if (!arithmetic_apply_pending(calc, operand)) {
+    return;
+  }
+
+  calc->pendingOp = 0;
+  calc->hasPendingOp = 0;
+  arithmetic_commit_display(calc);
+}
 
 /* ============================================================
  * Key Handling
@@ -141,6 +231,24 @@ __attribute__((unused)) static int process_key(HAL_Key key) {
   /* Handle negative sign (+/-) */
   if (key == KEY_NEG) {
     input_toggle_negative(&calc);
+    return 0;
+  }
+
+  /* Handle arithmetic operators */
+  if (key == KEY_PLUS) {
+    arithmetic_handle_operator(&calc, '+');
+    return 0;
+  }
+  if (key == KEY_MINUS) {
+    arithmetic_handle_operator(&calc, '-');
+    return 0;
+  }
+  if (key == KEY_MUL) {
+    arithmetic_handle_operator(&calc, '*');
+    return 0;
+  }
+  if (key == KEY_DIV) {
+    arithmetic_handle_operator(&calc, '/');
     return 0;
   }
 
@@ -348,7 +456,7 @@ __attribute__((unused)) static int process_key(HAL_Key key) {
 
   /* Handle EXE (same as pressing current variable) */
   if (key == KEY_EXE) {
-    /* Could be used for confirmation in worksheets */
+    arithmetic_handle_equals(&calc);
     return 0;
   }
 
@@ -400,7 +508,8 @@ __attribute__((unused)) static void render_screen(void) {
   } else if (calc.state == STATE_WAIT_RCL) {
     snprintf(valueBuffer, sizeof(valueBuffer), "RCL 0-9");
     label = "";
-  } else if (calc.state == STATE_INPUT && calc.inputLength > 0) {
+  } else if ((calc.state == STATE_INPUT || calc.state == STATE_RESULT) &&
+             calc.inputLength > 0) {
     /* Show input buffer with negative sign if needed */
     if (calc.isNegative) {
       snprintf(valueBuffer, sizeof(valueBuffer), "-%s", calc.inputBuffer);

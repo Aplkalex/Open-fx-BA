@@ -211,6 +211,12 @@ typedef struct {
   /* Current worksheet variable index (for up/down navigation) */
   int worksheetIndex;
 
+  /* Basic arithmetic state */
+  double accumulator;
+  char pendingOp;      /* '+', '-', '*', '/', or 0 */
+  int hasAccumulator;  /* 1 if accumulator holds a value */
+  int hasPendingOp;    /* 1 if waiting for next operand */
+
   /* Error code (if any) */
   int errorCode;
 
