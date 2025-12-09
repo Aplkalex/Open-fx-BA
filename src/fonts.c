@@ -10,30 +10,19 @@
 
 #include "fonts.h"
 #include "config.h"
+#include "hal/hal_display.h"
 #include <string.h>
 
-/* Stub functions for non-fxSDK builds */
-#ifndef USE_FXSDK
-static void Bdisp_SetPoint_VRAM(int x, int y, int c) {
-  (void)x;
-  (void)y;
-  (void)c;
-}
-static void Bdisp_AreaReverseVRAM(int x1, int y1, int x2, int y2) {
-  (void)x1;
-  (void)y1;
-  (void)x2;
-  (void)y2;
-}
+/* Wrapper macros to use HAL functions with SDK-style API */
 #define MINI_OVER 0
 #define MINI_REV 1
-static void PrintMini(int x, int y, const char *s, int m) {
-  (void)x;
-  (void)y;
-  (void)s;
-  (void)m;
-}
-#endif
+#define PrintMini(x, y, str, mode)                                             \
+  hal_display_print_text((x), (y), (str),                                      \
+                         (mode) == MINI_REV ? HAL_TEXT_REVERSE                 \
+                                            : HAL_TEXT_NORMAL)
+#define Bdisp_SetPoint_VRAM(x, y, c) hal_display_set_pixel((x), (y), (c))
+#define Bdisp_AreaReverseVRAM(x1, y1, x2, y2)                                  \
+  hal_display_area_reverse((x1), (y1), (x2), (y2))
 
 /* ============================================================
  * 7-Segment Digit Patterns (8x12 pixels)

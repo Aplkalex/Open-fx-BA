@@ -44,4 +44,19 @@ int hal_display_get_width(void);
  */
 int hal_display_get_height(void);
 
+/**
+ * Set a single pixel
+ * @param x X coordinate
+ * @param y Y coordinate
+ * @param color 1 = black/on, 0 = white/off
+ */
+void hal_display_set_pixel(int x, int y, int color);
+
+/**
+ * Reverse (invert) an area of the display
+ * @param x1, y1 Top-left corner
+ * @param x2, y2 Bottom-right corner
+ */
+void hal_display_area_reverse(int x1, int y1, int x2, int y2);
+
 #endif /* HAL_DISPLAY_H */
