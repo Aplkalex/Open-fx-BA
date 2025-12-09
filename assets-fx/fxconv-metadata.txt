@@ -1,0 +1,11 @@
+icon.png:
+  type: icon-mono
+  name: icon
+
+icon-uns.png:
+  type: icon-mono
+  name: icon_uns
+
+icon-sel.png:
+  type: icon-mono
+  name: icon_sel
