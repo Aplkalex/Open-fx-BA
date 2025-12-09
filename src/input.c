@@ -5,6 +5,7 @@
 
 #include "input.h"
 #include "config.h"
+#include "hal/hal_system.h"
 #include "tvm.h"
 #include "ui.h"
 #include <stdlib.h>
@@ -307,7 +308,7 @@ void state_handle_sto_key(Calculator *calc) {
   }
 
   calc->state = STATE_WAIT_STO;
-  calc->stateTimeout = STO_RCL_TIMEOUT;
+  calc->stateTimeout = hal_system_get_time_ms() + STO_RCL_TIMEOUT_MS;
 }
 
 /**
@@ -321,7 +322,7 @@ void state_handle_rcl_key(Calculator *calc) {
   }
 
   calc->state = STATE_WAIT_RCL;
-  calc->stateTimeout = STO_RCL_TIMEOUT;
+  calc->stateTimeout = hal_system_get_time_ms() + STO_RCL_TIMEOUT_MS;
 }
 
 /**
@@ -364,14 +365,16 @@ void state_handle_memory_digit(Calculator *calc, int digit) {
  * Auto-cancels STO/RCL if timeout expires.
  */
 void state_check_timeout(Calculator *calc) {
-  if (calc->state == STATE_WAIT_STO || calc->state == STATE_WAIT_RCL) {
-    if (calc->stateTimeout > 0) {
-      calc->stateTimeout--;
-    }
-    if (calc->stateTimeout == 0) {
-      /* Timeout expired - cancel STO/RCL and return to normal */
-      state_cancel_sto_rcl(calc);
-    }
+  if (calc->state != STATE_WAIT_STO && calc->state != STATE_WAIT_RCL)
+    return;
+
+  if (calc->stateTimeout == 0)
+    return;
+
+  unsigned long now = hal_system_get_time_ms();
+  if (now >= calc->stateTimeout) {
+    /* Timeout expired - cancel STO/RCL and return to normal */
+    state_cancel_sto_rcl(calc);
   }
 }
 

@@ -24,7 +24,13 @@ unsigned long hal_system_get_time_ms(void) {
 
 #else
 
-/* Placeholder */
-void _casio_system_placeholder(void) {}
+/* Stub implementations for non-Casio builds */
+void hal_system_init(void) {}
+
+void hal_system_shutdown(void) {}
+
+void hal_system_sleep(int ms) { (void)ms; }
+
+unsigned long hal_system_get_time_ms(void) { return 0; }
 
 #endif /* USE_CASIO_SDK */

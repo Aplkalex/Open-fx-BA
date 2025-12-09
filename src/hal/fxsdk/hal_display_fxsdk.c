@@ -14,15 +14,13 @@ void hal_display_clear(void) { dclear(C_WHITE); }
 void hal_display_refresh(void) { dupdate(); }
 
 void hal_display_print_text(int x, int y, const char *text, HAL_TextMode mode) {
-  color_t fg = C_BLACK;
-  color_t bg = C_WHITE;
-
   if (mode == HAL_TEXT_REVERSE) {
-    fg = C_WHITE;
-    bg = C_BLACK;
+    int width = strlen(text) * 6;
+    drectfill(x, y, x + width, y + 7, C_BLACK);
+    dtext(x, y, C_WHITE, text);
+  } else {
+    dtext(x, y, C_BLACK, text);
   }
-
-  dtext(x, y, fg, text);
 }
 
 int hal_display_get_width(void) { return 128; /* fx-9860G width */ }

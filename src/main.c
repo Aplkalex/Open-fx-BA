@@ -16,31 +16,15 @@
 #include "types.h"
 #include "ui.h"
 
+#include "hal/hal_keyboard.h"
+#include "hal/hal_system.h"
+
+#ifdef USE_CASIO_SDK
+#include <fxlib.h>
+#endif
+
 #include <stdio.h>
 #include <string.h>
-
-/*
- * fxSDK/gint includes
- * When building with fxsdk, USE_FXSDK will be defined
- */
-#ifdef USE_FXSDK
-#include <gint/display.h>
-#include <gint/gint.h>
-#include <gint/keyboard.h>
-#else
-/* Stub macros for development without SDK */
-#define GINT_CALL(x)
-typedef int key_event_t;
-__attribute__((unused)) static int keydown(int k) {
-  (void)k;
-  return 0;
-}
-__attribute__((unused)) static key_event_t pollevent(void) {
-  key_event_t e = {0};
-  return e;
-}
-__attribute__((unused)) static void getkey(void) {}
-#endif
 
 /* ============================================================
  * Global Calculator State
@@ -54,7 +38,7 @@ static Calculator calc;
 /**
  * Check if a key is a digit (0-9)
  */
-static int is_digit_key(int key, char *digit) {
+static int is_digit_key(HAL_Key key, char *digit) {
   switch (key) {
   case KEY_0:
     *digit = '0';
@@ -94,7 +78,7 @@ static int is_digit_key(int key, char *digit) {
 /**
  * Map F-key to TVM variable
  */
-static int fkey_to_tvm(int key, TVMVariable *var) {
+static int fkey_to_tvm(HAL_Key key, TVMVariable *var) {
   switch (key) {
   case KEY_F1:
     *var = TVM_VAR_N;
@@ -120,7 +104,7 @@ static int fkey_to_tvm(int key, TVMVariable *var) {
  * Process a single key press
  * Returns 0 to continue, 1 to exit
  */
-__attribute__((unused)) static int process_key(int key) {
+__attribute__((unused)) static int process_key(HAL_Key key) {
   char digit;
   TVMVariable var;
 
@@ -228,6 +212,8 @@ __attribute__((unused)) static int process_key(int key) {
       calc.worksheetIndex = 0;
       calc.is2ndActive = 0;
       return 0;
+    default:
+      break;
     }
 
     /* Worksheet access via 2ND + number keys */
@@ -271,6 +257,8 @@ __attribute__((unused)) static int process_key(int key) {
       }
       calc.is2ndActive = 0;
       return 0;
+    default:
+      break;
     }
 
     /* Handle 2ND + CE = CLR Work (clear current worksheet) */
@@ -413,48 +401,72 @@ __attribute__((unused)) static void render_screen(void) {
  * Main Entry Point
  * ============================================================ */
 
-#ifdef USE_FXSDK
-/* fxSDK entry point */
-int main(void) {
-  /* Initialize calculator state */
-  calc_init(&calc, MODEL_STANDARD);
-
-  /* Initialize UI */
-  ui_init();
-
-  /* Main event loop */
+#if defined(USE_FXSDK) || defined(USE_CASIO_SDK)
+/* Shared calculator loop for device builds */
+static int run_calculator_loop(void) {
   int running = 1;
-  int tickCounter = 0;
+  unsigned long lastTick = hal_system_get_time_ms();
 
   while (running) {
-    /* Render current screen */
+    state_check_timeout(&calc);
     render_screen();
 
-    /* Wait for key press with timeout check */
-    key_event_t ev;
-    while ((ev = pollevent()).type != KEYEV_DOWN) {
-      /* Check STO/RCL timeout every ~100ms */
-      tickCounter++;
-      if (tickCounter >= 10) {
+#ifdef USE_CASIO_SDK
+    HAL_Key key = hal_keyboard_wait_key();
+    running = !process_key(key);
+    lastTick = hal_system_get_time_ms();
+#else
+    while (1) {
+      HAL_Key key = hal_keyboard_get_key();
+      unsigned long now = hal_system_get_time_ms();
+
+      if (key != HAL_KEY_NONE) {
+        running = !process_key(key);
+        lastTick = now;
+        break;
+      }
+
+      if (now - lastTick >= 100) {
         state_check_timeout(&calc);
-        tickCounter = 0;
-        /* Re-render if state changed due to timeout */
+        lastTick = now;
         if (calc.state == STATE_INPUT) {
           render_screen();
         }
       }
+
+      hal_system_sleep(10);
     }
-
-    /* Reset tick counter on key press */
-    tickCounter = 0;
-
-    /* Process the key */
-    running = !process_key(ev.key);
+#endif
   }
 
   return 0;
 }
+#endif
 
+#ifdef USE_FXSDK
+/* fxSDK entry point */
+int main(void) {
+  hal_system_init();
+  calc_init(&calc, MODEL_STANDARD);
+  ui_init();
+  run_calculator_loop();
+  hal_system_shutdown();
+  return 0;
+}
+#elif defined(USE_CASIO_SDK)
+/* Casio SDK entry point */
+int AddIn_main(int isAppli, unsigned short *option) {
+  (void)isAppli;
+  (void)option;
+
+  hal_system_init();
+  calc_init(&calc, MODEL_STANDARD);
+  ui_init();
+  run_calculator_loop();
+  hal_system_shutdown();
+
+  return 1;
+}
 #else
 /* Development/testing entry point (non-SDK) */
 int main(int argc, char *argv[]) {

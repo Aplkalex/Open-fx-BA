@@ -68,53 +68,52 @@
 #define CFG_FEATURE_BREAKEVEN 1 /* Pro only */
 
 /* ============================================================
- * Key Code Mappings (Casio-specific)
+ * Key Code Mappings (SDK-agnostic via HAL)
  * ============================================================ */
+#include "hal/hal_keyboard.h"
 
-/* These will be defined based on actual fxSDK key codes */
-/* Placeholder values for now */
-#define KEY_0 0x7E
-#define KEY_1 0x72
-#define KEY_2 0x62
-#define KEY_3 0x52
-#define KEY_4 0x73
-#define KEY_5 0x63
-#define KEY_6 0x53
-#define KEY_7 0x74
-#define KEY_8 0x64
-#define KEY_9 0x54
-#define KEY_DOT 0x61
-#define KEY_NEG 0x51
-#define KEY_EXE 0x31
-#define KEY_EXIT 0x47
-#define KEY_DEL 0x44
-#define KEY_AC 0x07
+#define KEY_0 HAL_KEY_0
+#define KEY_1 HAL_KEY_1
+#define KEY_2 HAL_KEY_2
+#define KEY_3 HAL_KEY_3
+#define KEY_4 HAL_KEY_4
+#define KEY_5 HAL_KEY_5
+#define KEY_6 HAL_KEY_6
+#define KEY_7 HAL_KEY_7
+#define KEY_8 HAL_KEY_8
+#define KEY_9 HAL_KEY_9
+#define KEY_DOT HAL_KEY_DOT
+#define KEY_NEG HAL_KEY_NEG
+#define KEY_EXE HAL_KEY_EXE
+#define KEY_EXIT HAL_KEY_EXIT
+#define KEY_DEL HAL_KEY_DEL
+#define KEY_AC HAL_KEY_AC
 
 /* F-keys */
-#define KEY_F1 0x79
-#define KEY_F2 0x69
-#define KEY_F3 0x59
-#define KEY_F4 0x49
-#define KEY_F5 0x39
-#define KEY_F6 0x29
+#define KEY_F1 HAL_KEY_F1
+#define KEY_F2 HAL_KEY_F2
+#define KEY_F3 HAL_KEY_F3
+#define KEY_F4 HAL_KEY_F4
+#define KEY_F5 HAL_KEY_F5
+#define KEY_F6 HAL_KEY_F6
 
 /* Arrow keys */
-#define KEY_UP 0x28
-#define KEY_DOWN 0x37
-#define KEY_LEFT 0x38
-#define KEY_RIGHT 0x27
+#define KEY_UP HAL_KEY_UP
+#define KEY_DOWN HAL_KEY_DOWN
+#define KEY_LEFT HAL_KEY_LEFT
+#define KEY_RIGHT HAL_KEY_RIGHT
 
 /* Shift key */
-#define KEY_SHIFT 0x78
+#define KEY_SHIFT HAL_KEY_SHIFT
 
 /* STO/RCL key mappings (using OPTN and VARS keys) */
-#define KEY_STO 0x68 /* OPTN key -> STO */
-#define KEY_RCL 0x58 /* VARS key -> RCL */
+#define KEY_STO HAL_KEY_OPTN /* OPTN key -> STO */
+#define KEY_RCL HAL_KEY_VARS /* VARS key -> RCL */
 
 /* ============================================================
  * Timing Constants
  * ============================================================ */
-#define STO_RCL_TIMEOUT 40    /* ~4 seconds at 10 ticks/sec */
+#define STO_RCL_TIMEOUT_MS 4000 /* ~4 seconds */
 #define ERROR_DISPLAY_MS 2000 /* Error message display time */
 
 #endif /* CONFIG_H */

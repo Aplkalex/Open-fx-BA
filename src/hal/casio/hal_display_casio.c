@@ -37,7 +37,20 @@ int hal_display_get_height(void) { return 64; /* fx-9860G height */ }
 
 #else
 
-/* Placeholder - will be compiled when USE_CASIO_SDK is defined */
-void _casio_display_placeholder(void) {}
+/* Stub implementations for non-Casio builds */
+void hal_display_clear(void) {}
+
+void hal_display_refresh(void) {}
+
+void hal_display_print_text(int x, int y, const char *text, HAL_TextMode mode) {
+  (void)x;
+  (void)y;
+  (void)text;
+  (void)mode;
+}
+
+int hal_display_get_width(void) { return 128; }
+
+int hal_display_get_height(void) { return 64; }
 
 #endif /* USE_CASIO_SDK */

@@ -5,43 +5,23 @@
 
 #include "ui.h"
 #include "config.h"
+#include "hal/hal_display.h"
 #include <stdio.h>
 #include <string.h>
 
-/*
- * Note: This file uses placeholder function calls.
- * When using fxSDK/gint, replace with actual gint functions:
- * - dclear() for clearing
- * - dtext() for text rendering
- * - dupdate() for screen refresh
- */
-
-/* Placeholder for Casio display functions */
-#ifdef USE_FXSDK
-#include <gint/display.h>
-#include <gint/keyboard.h>
-#else
-/* Stub functions for development/testing */
-void Bdisp_AllClr_VRAM(void) {}
-void Bdisp_PutDisp_DD(void) {}
-void PrintMini(int x, int y, const char *str, int mode) {
-  (void)x;
-  (void)y;
-  (void)str;
-  (void)mode;
+static void draw_text(int x, int y, const char *text, int reverse) {
+  hal_display_print_text(x, y, text,
+                         reverse ? HAL_TEXT_REVERSE : HAL_TEXT_NORMAL);
 }
-#define MINI_OVER 0
-#define MINI_REV 1
-#endif
 
 /* ============================================================
  * Screen Initialization
  * ============================================================ */
 void ui_init(void) { ui_clear(); }
 
-void ui_clear(void) { Bdisp_AllClr_VRAM(); }
+void ui_clear(void) { hal_display_clear(); }
 
-void ui_refresh(void) { Bdisp_PutDisp_DD(); }
+void ui_refresh(void) { hal_display_refresh(); }
 
 /* ============================================================
  * Status Bar
@@ -51,56 +31,56 @@ void ui_draw_status_bar(Calculator *calc) {
 
   /* 2ND indicator (if active) */
   if (calc->is2ndActive) {
-    PrintMini(x_pos, STATUS_BAR_Y, "2ND", MINI_REV);
+    draw_text(x_pos, STATUS_BAR_Y, "2ND", 1);
     x_pos += 18;
   }
 
   /* CPT indicator (if in compute mode) */
   if (calc->state == STATE_COMPUTE || calc->isComputeActive) {
-    PrintMini(x_pos, STATUS_BAR_Y, "CPT", MINI_REV);
+    draw_text(x_pos, STATUS_BAR_Y, "CPT", 1);
     x_pos += 18;
   }
 
   /* STO/RCL indicators */
   if (calc->state == STATE_WAIT_STO) {
-    PrintMini(x_pos, STATUS_BAR_Y, "STO>", MINI_REV);
+    draw_text(x_pos, STATUS_BAR_Y, "STO>", 1);
     x_pos += 22;
   } else if (calc->state == STATE_WAIT_RCL) {
-    PrintMini(x_pos, STATUS_BAR_Y, "RCL>", MINI_REV);
+    draw_text(x_pos, STATUS_BAR_Y, "RCL>", 1);
     x_pos += 22;
   }
 
   /* TVM mode indicator (BGN/END) */
   const char *modeStr = (calc->tvm.mode == TVM_BEGIN) ? "BGN" : "";
   if (calc->tvm.mode == TVM_BEGIN) {
-    PrintMini(x_pos, STATUS_BAR_Y, modeStr, MINI_OVER);
+    draw_text(x_pos, STATUS_BAR_Y, modeStr, 0);
   }
 
   /* Model indicator at right side */
   const char *modelStr = (calc->model == MODEL_PROFESSIONAL) ? "PRO" : "";
   if (calc->model == MODEL_PROFESSIONAL) {
-    PrintMini(SCREEN_WIDTH - 20, STATUS_BAR_Y, modelStr, MINI_OVER);
+    draw_text(SCREEN_WIDTH - 20, STATUS_BAR_Y, modelStr, 0);
   }
 }
 
 /* STO indicator helper */
 void ui_draw_sto_indicator(int active) {
   if (active) {
-    PrintMini(0, STATUS_BAR_Y, "STO>", MINI_REV);
+    draw_text(0, STATUS_BAR_Y, "STO>", 1);
   }
 }
 
 /* RCL indicator helper */
 void ui_draw_rcl_indicator(int active) {
   if (active) {
-    PrintMini(0, STATUS_BAR_Y, "RCL>", MINI_REV);
+    draw_text(0, STATUS_BAR_Y, "RCL>", 1);
   }
 }
 
 /* 2ND indicator helper */
 void ui_draw_2nd_indicator(int active) {
   if (active) {
-    PrintMini(0, STATUS_BAR_Y, "2ND", MINI_REV);
+    draw_text(0, STATUS_BAR_Y, "2ND", 1);
   }
 }
 
@@ -119,7 +99,7 @@ void ui_draw_right_aligned(int y, const char *text) {
   if (x < 0)
     x = 0;
 
-  PrintMini(x, y, text, MINI_OVER);
+  draw_text(x, y, text, 0);
 }
 
 /**
@@ -128,7 +108,7 @@ void ui_draw_right_aligned(int y, const char *text) {
  */
 void ui_draw_display_with_label(const char *label, const char *value) {
   /* Draw label on left side */
-  PrintMini(2, MAIN_DISPLAY_Y - 8, label, MINI_OVER);
+  draw_text(2, MAIN_DISPLAY_Y - 8, label, 0);
 
   /* Draw value right-aligned below */
   ui_draw_right_aligned(MAIN_DISPLAY_Y + 4, value);
@@ -145,7 +125,7 @@ void ui_draw_fkey_menu(const char *labels[], int count) {
 
   for (int i = 0; i < count; i++) {
     int x = i * spacing + 2;
-    PrintMini(x, FKEY_MENU_Y, labels[i], MINI_OVER);
+    draw_text(x, FKEY_MENU_Y, labels[i], 0);
   }
 }
 
@@ -156,7 +136,7 @@ void ui_draw_tvm_menu(void) {
 
 void ui_draw_cpt_indicator(int active) {
   if (active) {
-    PrintMini(0, MAIN_DISPLAY_Y - 10, "COMPUTE", MINI_REV);
+    draw_text(0, MAIN_DISPLAY_Y - 10, "COMPUTE", 1);
   }
 }
 
@@ -166,10 +146,10 @@ void ui_draw_cpt_indicator(int active) {
  */
 void ui_draw_worksheet_hints(int showUp, int showDown) {
   if (showUp) {
-    PrintMini(SCREEN_WIDTH - 10, MAIN_DISPLAY_Y - 12, "^", MINI_OVER);
+    draw_text(SCREEN_WIDTH - 10, MAIN_DISPLAY_Y - 12, "^", 0);
   }
   if (showDown) {
-    PrintMini(SCREEN_WIDTH - 10, MAIN_DISPLAY_Y + 16, "v", MINI_OVER);
+    draw_text(SCREEN_WIDTH - 10, MAIN_DISPLAY_Y + 16, "v", 0);
   }
 }
 
@@ -226,7 +206,7 @@ void ui_show_error_inline(const char *message) {
 void ui_show_memory_stored(int index, double value) {
   char buf[24];
   snprintf(buf, sizeof(buf), "M%d=", index);
-  PrintMini(2, MAIN_DISPLAY_Y - 8, buf, MINI_OVER);
+  draw_text(2, MAIN_DISPLAY_Y - 8, buf, 0);
 
   char valBuf[16];
   format_number(value, valBuf, sizeof(valBuf));
@@ -239,7 +219,7 @@ void ui_show_memory_stored(int index, double value) {
 void ui_show_memory_recalled(int index, double value) {
   char buf[24];
   snprintf(buf, sizeof(buf), "RCL M%d", index);
-  PrintMini(2, MAIN_DISPLAY_Y - 8, buf, MINI_OVER);
+  draw_text(2, MAIN_DISPLAY_Y - 8, buf, 0);
 
   char valBuf[16];
   format_number(value, valBuf, sizeof(valBuf));
@@ -251,8 +231,8 @@ void ui_show_memory_recalled(int index, double value) {
  * ============================================================ */
 void ui_show_message(const char *title, const char *message) {
   ui_clear();
-  PrintMini(0, 10, title, MINI_REV);
-  PrintMini(0, 25, message, MINI_OVER);
+  draw_text(0, 10, title, 1);
+  draw_text(0, 25, message, 0);
   ui_refresh();
 }
 

@@ -3,13 +3,15 @@
 ProjectName := Open-fx-BA
 InternalName := OPENFXBA
 
+SDK ?= fxsdk
+
 Type := g3a
 Icon := icon.png
 IconUnselected :=
 AppVersion := 1.0.0
 
-Compiler := sh-elf-gcc
-Linker := sh-elf-gcc
+CC ?= sh-elf-gcc
+LINKER ?= sh-elf-gcc
 
 # C flags
 CFLAGS := -std=c11 -Os -Wall -Wextra
@@ -20,8 +22,8 @@ CFLAGS += -fstrict-volatile-bitfields
 # Run: make test
 # For actual build: fxsdk build-fx
 
-# Source files
-SOURCES := \
+# Common source files
+BASE_SOURCES := \
     src/main.c \
     src/ui.c \
     src/input.c \
@@ -39,10 +41,24 @@ SOURCES := \
     src/profit.c \
     src/fonts.c \
     src/display.c \
-    src/tests.c \
+    src/tests.c
+
+ifeq ($(SDK),casio)
+HAL_SOURCES := \
+    src/hal/casio/hal_display_casio.c \
+    src/hal/casio/hal_keyboard_casio.c \
+    src/hal/casio/hal_system_casio.c
+PLATFORM_FLAGS := -DUSE_CASIO_SDK
+else
+HAL_SOURCES := \
     src/hal/fxsdk/hal_display_fxsdk.c \
     src/hal/fxsdk/hal_keyboard_fxsdk.c \
     src/hal/fxsdk/hal_system_fxsdk.c
+PLATFORM_FLAGS := -DUSE_FXSDK
+endif
+
+SOURCES := $(BASE_SOURCES) $(HAL_SOURCES)
+CFLAGS += $(PLATFORM_FLAGS)
 
 # Headers
 HEADERS := \
@@ -67,9 +83,17 @@ HEADERS := \
 # Object files
 OBJECTS := $(SOURCES:.c=.o)
 
-# Default target (for fxSDK)
-all:
+ifeq ($(SDK),casio)
+all: casio-sdk
+else
+all: fxsdk-build
+endif
+
+fxsdk-build:
 	fxsdk build-fx
+
+casio-sdk: $(SOURCES) $(HEADERS)
+	$(CC) $(CFLAGS) $(SOURCES) -lfx -lm -o $(ProjectName).elf
 
 # Development test (compile for local machine)
 test: CFLAGS := -std=c11 -Wall -Wextra -g -DTEST_BUILD
@@ -89,5 +113,6 @@ cfa-test: $(SOURCES) $(HEADERS)
 clean:
 	rm -f $(OBJECTS) fx-ba-test
 	rm -rf build-fx
+	rm -f $(ProjectName).elf
 
-.PHONY: all test cfa-test clean
+.PHONY: all fxsdk-build casio-sdk test cfa-test clean

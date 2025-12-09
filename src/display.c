@@ -16,23 +16,10 @@
  */
 
 #include "display.h"
+#include "hal/hal_display.h"
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
-
-/* Stub for PrintMini if not using fxSDK */
-#ifndef USE_FXSDK
-#define MINI_OVER 0
-#define MINI_REV 1
-static void PrintMini(int x, int y, const char *s, int m) {
-  (void)x;
-  (void)y;
-  (void)s;
-  (void)m;
-}
-static void Bdisp_AllClr_VRAM(void) {}
-static void Bdisp_PutDisp_DD(void) {}
-#endif
 
 /* ============================================================
  * Display Initialization
@@ -49,14 +36,15 @@ void display_init(DisplayState *state) {
  * ============================================================ */
 
 void display_render(DisplayState *state, Calculator *calc) {
-  Bdisp_AllClr_VRAM();
+  hal_display_clear();
 
   /* Draw all sections */
   display_draw_status_bar(state, calc);
 
   if (state->hasError) {
     /* Show error instead of normal display */
-    PrintMini(40, VALUE_Y, get_error_message(state->errorCode), MINI_REV);
+    hal_display_print_text(40, VALUE_Y, get_error_message(state->errorCode),
+                           HAL_TEXT_REVERSE);
   } else {
     display_draw_var_prompt(state->varLabel, state->isComputed);
     display_draw_value(calc, state->varValue, 0);
@@ -65,7 +53,7 @@ void display_render(DisplayState *state, Calculator *calc) {
   display_draw_indicator(state);
   display_draw_fkeys(state);
 
-  Bdisp_PutDisp_DD();
+  hal_display_refresh();
 }
 
 /* ============================================================
@@ -77,25 +65,25 @@ void display_draw_status_bar(DisplayState *state, Calculator *calc) {
 
   /* Model indicator (left) */
   const char *model = (calc->model == MODEL_PROFESSIONAL) ? "PRO" : "STD";
-  PrintMini(0, STATUS_Y, model, MINI_OVER);
+  hal_display_print_text(0, STATUS_Y, model, HAL_TEXT_NORMAL);
 
   /* BGN/END indicator (center-left) */
   if (calc->tvm.mode == TVM_BEGIN) {
-    PrintMini(30, STATUS_Y, "BGN", MINI_OVER);
+    hal_display_print_text(30, STATUS_Y, "BGN", HAL_TEXT_NORMAL);
   }
 
   /* 2nd indicator (center-right) */
-  if (state->secondActive) {
-    PrintMini(70, STATUS_Y, "2nd", MINI_REV);
+  if (calc->is2ndActive) {
+    hal_display_print_text(70, STATUS_Y, "2nd", HAL_TEXT_REVERSE);
   }
 
-  /* Format indicator (after 2nd) */
+  /* Format indicator - check Calculator state */
   if (calc->state == STATE_WAIT_FORMAT) {
-    PrintMini(90, STATUS_Y, "FMT>", MINI_REV);
+    hal_display_print_text(90, STATUS_Y, "FMT>", HAL_TEXT_REVERSE);
   } else if (calc->displayDecimals >= 0) {
     char fmtBuf[8];
     snprintf(fmtBuf, sizeof(fmtBuf), "D%d", calc->displayDecimals);
-    PrintMini(90, STATUS_Y, fmtBuf, MINI_OVER);
+    hal_display_print_text(90, STATUS_Y, fmtBuf, HAL_TEXT_NORMAL);
   }
 
   /* Worksheet indicator (right) */
@@ -103,25 +91,25 @@ void display_draw_status_bar(DisplayState *state, Calculator *calc) {
   case WS_TVM:
     break; /* No indicator for TVM */
   case WS_CASH_FLOW:
-    PrintMini(100, STATUS_Y, "CF", MINI_OVER);
+    hal_display_print_text(100, STATUS_Y, "CF", HAL_TEXT_NORMAL);
     break;
   case WS_AMORT:
-    PrintMini(100, STATUS_Y, "AM", MINI_OVER);
+    hal_display_print_text(100, STATUS_Y, "AM", HAL_TEXT_NORMAL);
     break;
   case WS_BOND:
-    PrintMini(100, STATUS_Y, "BD", MINI_OVER);
+    hal_display_print_text(100, STATUS_Y, "BD", HAL_TEXT_NORMAL);
     break;
   case WS_DEPRECIATION:
-    PrintMini(100, STATUS_Y, "DP", MINI_OVER);
+    hal_display_print_text(100, STATUS_Y, "DP", HAL_TEXT_NORMAL);
     break;
   case WS_DATE:
-    PrintMini(100, STATUS_Y, "DT", MINI_OVER);
+    hal_display_print_text(100, STATUS_Y, "DT", HAL_TEXT_NORMAL);
     break;
   case WS_STATISTICS:
-    PrintMini(100, STATUS_Y, "ST", MINI_OVER);
+    hal_display_print_text(100, STATUS_Y, "ST", HAL_TEXT_NORMAL);
     break;
   case WS_BREAKEVEN:
-    PrintMini(100, STATUS_Y, "BE", MINI_OVER);
+    hal_display_print_text(100, STATUS_Y, "BE", HAL_TEXT_NORMAL);
     break;
   default:
     break;
@@ -129,7 +117,7 @@ void display_draw_status_bar(DisplayState *state, Calculator *calc) {
 
   /* Separator line */
   for (int x = 0; x < DISPLAY_WIDTH; x += 2) {
-    PrintMini(x, STATUS_Y + 8, "-", MINI_OVER);
+    hal_display_print_text(x, STATUS_Y + 8, "-", HAL_TEXT_NORMAL);
   }
 
   (void)buffer;
@@ -146,11 +134,11 @@ void display_draw_var_prompt(const char *label, int isComputed) {
   snprintf(buffer, sizeof(buffer), "%s=", label);
 
   /* Draw at left side of screen */
-  PrintMini(0, LABEL_Y, buffer, MINI_OVER);
+  hal_display_print_text(0, LABEL_Y, buffer, HAL_TEXT_NORMAL);
 
   /* Show asterisk if value was computed */
   if (isComputed) {
-    PrintMini(DISPLAY_WIDTH - 8, LABEL_Y, "*", MINI_OVER);
+    hal_display_print_text(DISPLAY_WIDTH - 8, LABEL_Y, "*", HAL_TEXT_NORMAL);
   }
 }
 
@@ -191,7 +179,7 @@ void display_draw_value(Calculator *calc, double value, int isNegative) {
     x = 4;
 
   /* Draw value */
-  PrintMini(x, VALUE_Y, finalBuffer, MINI_OVER);
+  hal_display_print_text(x, VALUE_Y, finalBuffer, HAL_TEXT_NORMAL);
 }
 
 /* ============================================================
@@ -201,8 +189,8 @@ void display_draw_value(Calculator *calc, double value, int isNegative) {
 void display_draw_indicator(DisplayState *state) {
   if (state->cptActive) {
     /* Show COMPUTE with optional blink effect */
-    int mode = state->cptBlink ? MINI_REV : MINI_OVER;
-    PrintMini(0, INDICATOR_Y, "COMPUTE", mode);
+    HAL_TextMode mode = state->cptBlink ? HAL_TEXT_REVERSE : HAL_TEXT_NORMAL;
+    hal_display_print_text(0, INDICATOR_Y, "COMPUTE", mode);
   }
 }
 
@@ -213,7 +201,7 @@ void display_draw_indicator(DisplayState *state) {
 void display_draw_fkeys(DisplayState *state) {
   /* Separator line */
   for (int x = 0; x < DISPLAY_WIDTH; x += 2) {
-    PrintMini(x, FKEY_Y - 4, "-", MINI_OVER);
+    hal_display_print_text(x, FKEY_Y - 4, "-", HAL_TEXT_NORMAL);
   }
 
   const char *labels[6];
@@ -345,10 +333,10 @@ void display_draw_fkeys(DisplayState *state) {
   for (int i = 0; i < 6; i++) {
     int x = (i * spacing) + 2;
 
-    if (state->secondActive && labels2nd[i][0] != '\0') {
-      PrintMini(x, FKEY_Y, labels2nd[i], MINI_REV);
+    if (state->secondActive) {
+      hal_display_print_text(x, FKEY_Y, labels2nd[i], HAL_TEXT_REVERSE);
     } else {
-      PrintMini(x, FKEY_Y, labels[i], MINI_OVER);
+      hal_display_print_text(x, FKEY_Y, labels[i], HAL_TEXT_NORMAL);
     }
   }
 }

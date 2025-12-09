@@ -118,7 +118,14 @@ int hal_keyboard_is_pressed(HAL_Key key) {
 
 #else
 
-/* Placeholder */
-void _casio_keyboard_placeholder(void) {}
+/* Stub implementations */
+HAL_Key hal_keyboard_get_key(void) { return HAL_KEY_NONE; }
+
+HAL_Key hal_keyboard_wait_key(void) { return HAL_KEY_NONE; }
+
+int hal_keyboard_is_pressed(HAL_Key key) {
+  (void)key;
+  return 0;
+}
 
 #endif /* USE_CASIO_SDK */

@@ -202,8 +202,8 @@ typedef struct {
   int is2ndActive;     /* 2ND key pressed */
   int isComputeActive; /* CPT key pressed */
 
-  /* Timeout counter for STO/RCL states */
-  int stateTimeout;
+  /* Timeout expiration timestamp (ms) for STO/RCL states */
+  unsigned long stateTimeout;
 
   /* Current worksheet/screen */
   int currentScreen;

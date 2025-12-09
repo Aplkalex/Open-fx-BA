@@ -97,6 +97,10 @@ make cfa-test
 
 # Build for calculator
 fxsdk build-fx
+
+# Build with official Casio SDK toolchain (fxlib.h)
+make SDK=casio casio-sdk
+# or add src/hal/casio/*.c to your CasioSDK project and define USE_CASIO_SDK
 ```
 
 ### Install
