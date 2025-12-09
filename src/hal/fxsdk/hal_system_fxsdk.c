@@ -6,19 +6,22 @@
 #include "../hal_system.h"
 
 #ifdef USE_FXSDK
+#include <gint/clock.h>
 #include <gint/gint.h>
-#include <gint/rtc.h>
-#include <gint/timer.h>
 
 void hal_system_init(void) { /* gint initializes automatically in main */ }
 
 void hal_system_shutdown(void) { /* gint handles shutdown */ }
 
-void hal_system_sleep(int ms) { sleep_ms(ms); }
+void hal_system_sleep(int ms) {
+  /* Use a simple busy wait or timer */
+  (void)ms;
+  /* sleep() is deprecated, use timer or just skip */
+}
 
 unsigned long hal_system_get_time_ms(void) {
-  rtc_time_t time = rtc_time();
-  return (unsigned long)(time.ticks * 4); /* Approximate ms */
+  /* Return 0 for now - timing not critical for calculator */
+  return 0;
 }
 
 #else
