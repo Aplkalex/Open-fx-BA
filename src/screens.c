@@ -11,21 +11,18 @@
 
 #include "screens.h"
 #include "config.h"
+#include "hal/hal_display.h"
 #include "ui.h"
 #include <stdio.h>
 #include <string.h>
 
-/* Define display constants if not using fxSDK */
-#ifndef USE_FXSDK
+/* Wrapper macros to use HAL functions with PrintMini-style API */
 #define MINI_OVER 0
 #define MINI_REV 1
-static void PrintMini(int x, int y, const char *str, int mode) {
-  (void)x;
-  (void)y;
-  (void)str;
-  (void)mode;
-}
-#endif
+#define PrintMini(x, y, str, mode)                                             \
+  hal_display_print_text((x), (y), (str),                                      \
+                         (mode) == MINI_REV ? HAL_TEXT_REVERSE                 \
+                                            : HAL_TEXT_NORMAL)
 
 /* ============================================================
  * Static Menu Definitions
