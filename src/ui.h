@@ -33,8 +33,8 @@ void ui_draw_display_with_label(const char *label, const char *value);
 /* ============================================================
  * F-Key Menu (bottom of screen)
  * ============================================================ */
-void ui_draw_fkey_menu(const char *labels[], int count);
-void ui_draw_tvm_menu(void);
+void ui_draw_fkey_menu(const char *labels[], int count, int reverse);
+void ui_draw_tvm_menu(int isSecond);
 void ui_draw_cpt_indicator(int active);
 void ui_draw_worksheet_hints(int showUp, int showDown);
 

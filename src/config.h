@@ -102,6 +102,7 @@
 #define KEY_DOWN HAL_KEY_DOWN
 #define KEY_LEFT HAL_KEY_LEFT
 #define KEY_RIGHT HAL_KEY_RIGHT
+#define KEY_MENU HAL_KEY_MENU
 
 /* Shift key */
 #define KEY_SHIFT HAL_KEY_SHIFT

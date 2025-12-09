@@ -186,6 +186,20 @@ __attribute__((unused)) static int process_key(HAL_Key key) {
     return 0;
   }
 
+  /* Handle model toggle (MENU key) */
+  if (key == KEY_MENU) {
+    calc.model = model_toggle(calc.model);
+
+    /* If we just switched to Standard, exit Pro-only worksheets */
+    if (calc.model == MODEL_STANDARD &&
+        (calc.currentScreen == SCREEN_BREAKEVEN ||
+         calc.currentScreen == SCREEN_PROFIT_MARGIN)) {
+      calc.currentScreen = SCREEN_TVM;
+      calc.worksheetIndex = 0;
+    }
+    return 0;
+  }
+
   /* Handle 2ND + F-key combinations */
   if (calc.is2ndActive) {
     switch (key) {
@@ -364,34 +378,75 @@ __attribute__((unused)) static void render_screen(void) {
   /* Draw CPT indicator if in compute mode */
   ui_draw_cpt_indicator(calc.state == STATE_COMPUTE);
 
-  /* Draw main display */
-  char displayBuffer[32];
+  /* Draw main display with worksheet label */
+  char valueBuffer[32];
+  const char *label = "";
+  double value = 0.0;
 
-  if (calc.state == STATE_ERROR || error_is_active(&calc)) {
-    /* TI BA II Plus style: just show "Error" in display area */
-    snprintf(displayBuffer, sizeof(displayBuffer), "%s",
-             calc.errorMessage[0] ? calc.errorMessage : "Error");
-  } else if (calc.state == STATE_WAIT_STO) {
-    /* Show STO prompt - waiting for digit 0-9 */
-    snprintf(displayBuffer, sizeof(displayBuffer), "STO 0-9");
-  } else if (calc.state == STATE_WAIT_RCL) {
-    /* Show RCL prompt - waiting for digit 0-9 */
-    snprintf(displayBuffer, sizeof(displayBuffer), "RCL 0-9");
-  } else if (calc.inputLength > 0) {
-    /* Show input buffer with negative sign if needed */
-    if (calc.isNegative) {
-      snprintf(displayBuffer, sizeof(displayBuffer), "-%s", calc.inputBuffer);
-    } else {
-      snprintf(displayBuffer, sizeof(displayBuffer), "%s", calc.inputBuffer);
-    }
-  } else {
-    snprintf(displayBuffer, sizeof(displayBuffer), "0");
+  /* Clamp worksheet index for TVM fields */
+  if (calc.worksheetIndex < 0) {
+    calc.worksheetIndex = 0;
+  } else if (calc.worksheetIndex > 4) {
+    calc.worksheetIndex = calc.worksheetIndex % 5;
   }
 
-  ui_draw_main_display(displayBuffer);
+  if (calc.state == STATE_ERROR || error_is_active(&calc)) {
+    snprintf(valueBuffer, sizeof(valueBuffer), "%s",
+             calc.errorMessage[0] ? calc.errorMessage : "Error");
+    label = "";
+  } else if (calc.state == STATE_WAIT_STO) {
+    snprintf(valueBuffer, sizeof(valueBuffer), "STO 0-9");
+    label = "";
+  } else if (calc.state == STATE_WAIT_RCL) {
+    snprintf(valueBuffer, sizeof(valueBuffer), "RCL 0-9");
+    label = "";
+  } else if (calc.state == STATE_INPUT && calc.inputLength > 0) {
+    /* Show input buffer with negative sign if needed */
+    if (calc.isNegative) {
+      snprintf(valueBuffer, sizeof(valueBuffer), "-%s", calc.inputBuffer);
+    } else {
+      snprintf(valueBuffer, sizeof(valueBuffer), "%s", calc.inputBuffer);
+    }
+  } else {
+    /* Show stored TVM value with label (N=, I/Y=, etc.) */
+    static const char *tvmLabels[] = {"N", "I/Y", "PV", "PMT", "FV"};
+    int idx = (calc.worksheetIndex >= 0 && calc.worksheetIndex < 5)
+                  ? calc.worksheetIndex
+                  : 0;
+    label = tvmLabels[idx];
+    switch (idx) {
+    case 0:
+      value = calc.tvm.N;
+      break;
+    case 1:
+      value = calc.tvm.I_Y;
+      break;
+    case 2:
+      value = calc.tvm.PV;
+      break;
+    case 3:
+      value = calc.tvm.PMT;
+      break;
+    case 4:
+      value = calc.tvm.FV;
+      break;
+    default:
+      value = 0.0;
+      break;
+    }
+    format_number(value, valueBuffer, sizeof(valueBuffer));
+  }
 
-  /* Draw F-key menu */
-  ui_draw_tvm_menu();
+  if (label[0] != '\0') {
+    char labelBuffer[12];
+    snprintf(labelBuffer, sizeof(labelBuffer), "%s=", label);
+    ui_draw_display_with_label(labelBuffer, valueBuffer);
+  } else {
+    ui_draw_main_display(valueBuffer);
+  }
+
+  /* Draw F-key menu with 2nd labels if active */
+  ui_draw_tvm_menu(calc.is2ndActive);
 
   /* Refresh display */
   ui_refresh();

@@ -57,10 +57,8 @@ void ui_draw_status_bar(Calculator *calc) {
   }
 
   /* Model indicator at right side */
-  const char *modelStr = (calc->model == MODEL_PROFESSIONAL) ? "PRO" : "";
-  if (calc->model == MODEL_PROFESSIONAL) {
-    draw_text(SCREEN_WIDTH - 20, STATUS_BAR_Y, modelStr, 0);
-  }
+  const char *modelStr = (calc->model == MODEL_PROFESSIONAL) ? "PRO" : "STD";
+  draw_text(SCREEN_WIDTH - 20, STATUS_BAR_Y, modelStr, 0);
 }
 
 /* STO indicator helper */
@@ -117,7 +115,7 @@ void ui_draw_display_with_label(const char *label, const char *value) {
 /* ============================================================
  * F-Key Menu
  * ============================================================ */
-void ui_draw_fkey_menu(const char *labels[], int count) {
+void ui_draw_fkey_menu(const char *labels[], int count, int reverse) {
   if (count > 6)
     count = 6;
 
@@ -125,13 +123,18 @@ void ui_draw_fkey_menu(const char *labels[], int count) {
 
   for (int i = 0; i < count; i++) {
     int x = i * spacing + 2;
-    draw_text(x, FKEY_MENU_Y, labels[i], 0);
+    draw_text(x, FKEY_MENU_Y, labels[i], reverse);
   }
 }
 
-void ui_draw_tvm_menu(void) {
-  static const char *tvm_labels[] = {"N", "I/Y", "PV", "PMT", "FV", "CPT"};
-  ui_draw_fkey_menu(tvm_labels, 6);
+void ui_draw_tvm_menu(int isSecond) {
+  static const char *tvm_labels[] = {"N",    "I/Y",  "PV",
+                                     "PMT", "FV",   "CPT"};
+  static const char *tvm_labels_2nd[] = {"xP/Y", "P/Y",   "AMORT",
+                                         "BGN",  "CLR",  "QUIT"};
+
+  const char **labels = isSecond ? tvm_labels_2nd : tvm_labels;
+  ui_draw_fkey_menu(labels, 6, isSecond);
 }
 
 void ui_draw_cpt_indicator(int active) {

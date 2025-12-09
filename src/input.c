@@ -247,9 +247,15 @@ void state_handle_var_key(Calculator *calc, TVMVariable var) {
     calc->inputLength = strlen(calc->inputBuffer);
     calc->state = STATE_RESULT;
   }
+
+  /* Track which worksheet variable is active for UI display */
+  calc->worksheetIndex = var;
 }
 
-void state_handle_cpt_key(Calculator *calc) { calc->state = STATE_COMPUTE; }
+void state_handle_cpt_key(Calculator *calc) {
+  calc->state = STATE_COMPUTE;
+  calc->isComputeActive = 1;
+}
 
 /* ============================================================
  * TVM Variable Access
