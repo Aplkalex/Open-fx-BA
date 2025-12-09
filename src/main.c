@@ -568,3 +568,42 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 #endif
+
+/* ============================================================
+ * Casio SDK Entry Point (for official SDK builds)
+ * ============================================================ */
+#ifdef USE_CASIO_SDK
+
+/**
+ * Main entry point for Casio Add-in
+ * Called when the add-in is launched from the MENU
+ */
+int AddIn_main(int isAppli, unsigned short OptionNum) {
+  (void)isAppli;
+  (void)OptionNum;
+
+  /* Run the calculator main function */
+  calculator_main();
+
+  return 1;
+}
+
+/**
+ * Required sections for Casio SDK
+ * These define the add-in memory layout
+ */
+#pragma section _BR_Size
+unsigned long BR_Size;
+#pragma section
+
+#pragma section _TOP
+/**
+ * System initialization
+ * Must be called before AddIn_main
+ */
+int InitializeSystem(int isAppli, unsigned short OptionNum) {
+  return INIT_ADDIN_APPLICATION(isAppli, OptionNum);
+}
+#pragma section
+
+#endif /* USE_CASIO_SDK */
