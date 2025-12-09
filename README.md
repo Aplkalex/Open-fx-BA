@@ -5,22 +5,148 @@
 **An open source TI BA II Plus add-in for Casio fx-9860G series.**
 
 
-![Release](https://img.shields.io/badge/BETA%20RELEASE-TBD-EBF2F9?style=for-the-badge&labelColor=333)
+![Release](https://img.shields.io/badge/BETA%20RELEASE-8%20DEC%202025-EBF2F9?style=for-the-badge&labelColor=333)
 ![License](https://img.shields.io/badge/LICENSE-MIT-50799E?style=for-the-badge&labelColor=333)
 ![Status](https://img.shields.io/badge/STATUS-ACTIVE-A9BD3B?style=for-the-badge&labelColor=333)
 
-<!--[fxSDK](https://img.shields.io/badge/fxSDK-CASIO_SDK-4a4a4a?style=for-the-badge)-->
-<!--[Tests](https://img.shields.io/badge/TESTS-39%2F39_PASSING-success?style=for-the-badge)-->
-![Compatible](https://img.shields.io/badge/COMPATIBLE_WITH-CASIO_FX--9860G_SERIES-fffcf2?style=for-the-badge&labelColor=333)
+![fx-9750GIII](https://img.shields.io/badge/COMPATIBLE-fx--9750GIII-00599C?style=for-the-badge&labelColor=333)
+![fx-9860GIII](https://img.shields.io/badge/COMPATIBLE-fx--9860GIII-00599C?style=for-the-badge&labelColor=333)
+![fx-9860G](https://img.shields.io/badge/COMPATIBLE-fx--9860G-00599C?style=for-the-badge&labelColor=333)
 
 ![C](https://img.shields.io/badge/C-00599C?style=for-the-badge&logo=c&logoColor=white)
+![Tests](https://img.shields.io/badge/TESTS-39%2F39_PASSING-success?style=for-the-badge)
 
 
 
 </div>
 <br/>
 
-## Features
+---
+
+## 📺 Display Layout
+
+The calculator displays information in TI BA II Plus style:
+
+```
+┌────────────────────────────────────────┐
+│ STD          BGN      2nd         D4   │ ← Status Bar
+│────────────────────────────────────────│
+│ N=                                     │ ← Variable Prompt
+│                           1,234.56   * │ ← Value (right-aligned)
+│                                        │
+│ COMPUTE                                │ ← Indicator
+│────────────────────────────────────────│
+│  N    I/Y   PV   PMT   FV   CPT       │ ← F-Key Labels
+└────────────────────────────────────────┘
+```
+
+### Status Bar Indicators
+| Indicator | Meaning |
+|-----------|---------|
+| **STD/PRO** | Standard or Professional mode |
+| **BGN** | Payments at beginning of period |
+| **2nd** | 2nd function mode active (SHIFT pressed) |
+| **D4** | Display format (4 decimal places) |
+| **CF/AM/BD/DP/DT/ST/BE** | Current worksheet |
+
+---
+
+## ⌨️ F-Key Functions
+
+### TVM Mode (Main Screen)
+
+| Key | Normal Function | 2nd Function (SHIFT) |
+|:---:|-----------------|---------------------|
+| **F1** | **N** - Number of periods | **xP/Y** - Times P/Y |
+| **F2** | **I/Y** - Interest rate/year | **P/Y** - Payments/year settings |
+| **F3** | **PV** - Present value | **AMORT** - Amortization worksheet |
+| **F4** | **PMT** - Payment amount | **BGN** - Toggle BEGIN/END mode |
+| **F5** | **FV** - Future value | **CLR** - Clear TVM values |
+| **F6** | **CPT** - Compute | **QUIT** - Return to TVM screen |
+
+### Cash Flow Mode (SHIFT + 7)
+
+| Key | Normal | 2nd |
+|:---:|--------|-----|
+| **F1** | CF0 - Initial cash flow | - |
+| **F2** | CFn - Cash flow entry | F01 - Frequency |
+| **F3** | NPV - Net present value | NFV - Net future value |
+| **F4** | IRR - Internal rate of return | MIRR - Modified IRR |
+| **F5** | - | INS - Insert flow |
+| **F6** | ↓ - Next flow | CLR - Clear cash flows |
+
+### Amortization Mode (SHIFT + F3)
+
+| Key | Normal | 2nd |
+|:---:|--------|-----|
+| **F1** | P1 - Start period | - |
+| **F2** | P2 - End period | - |
+| **F3** | BAL - Remaining balance | - |
+| **F4** | PRN - Principal paid | - |
+| **F5** | INT - Interest paid | - |
+| **F6** | ↓ - Navigate | - |
+
+### Bond Mode (SHIFT + 8)
+
+| Key | Normal | 2nd |
+|:---:|--------|-----|
+| **F1** | SDT - Settlement date | - |
+| **F2** | CPN - Coupon rate | - |
+| **F3** | RDT - Redemption date | - |
+| **F4** | RV - Redemption value | AI - Accrued interest |
+| **F5** | 360 - Day count mode | DUR - Duration |
+| **F6** | ↓ - Navigate | SET - YTM/YTC toggle |
+
+### Depreciation Mode (SHIFT + 9)
+
+| Key | Normal | 2nd |
+|:---:|--------|-----|
+| **F1** | CST - Cost | M01 - Start month |
+| **F2** | SAL - Salvage value | - |
+| **F3** | LIF - Life in years | - |
+| **F4** | YR - Year to compute | - |
+| **F5** | DEP - Depreciation | RBV - Remaining book value |
+| **F6** | ↓ - Navigate | - |
+
+### Statistics Mode (SHIFT + 4)
+
+| Key | Normal | 2nd |
+|:---:|--------|-----|
+| **F1** | X - Enter X data | - |
+| **F2** | Y - Enter Y data | - |
+| **F3** | n - Sample count | - |
+| **F4** | x̄ - Mean of X | ȳ - Mean of Y |
+| **F5** | Sx - Std dev X | Sy - Std dev Y |
+| **F6** | ↓ - Navigate | REG - Regression type |
+
+---
+
+## 🔧 Setup Functions
+
+### Setting Decimal Places
+```
+SHIFT → . (dot) → Enter digit 0-9 → Display shows "D#"
+```
+- **0-9**: Fixed decimal places
+- **.** (dot): Floating point mode
+
+### Toggle BEGIN/END Mode
+```
+SHIFT → F4 → Display shows "BGN" or clears
+```
+- **BGN**: Payments at beginning of period (annuity due)
+- **END**: Payments at end of period (ordinary annuity)
+
+### Clear Functions
+| Keys | Action |
+|------|--------|
+| **DEL** | Backspace (delete last digit) |
+| **AC** | Clear all TVM values |
+| **SHIFT + F5** | CLR TVM (same as AC) |
+
+---
+
+## 📊 Features
 
 ### Standard Mode
 | Feature | Description |
@@ -44,95 +170,107 @@
 | **Profit Margin** | Cost, Selling, Margin%, Markup% |
 | **Statistics+** | 4 regression types, Forecasting |
 
-## Specification Coverage
+---
 
-### Standard Mode Specification
-- Time-Value-of-Money worksheet with P/Y, C/Y, BEGIN/END, amortization schedules, and annuity/mortgage/lease/saving scenarios  
-- Cash-flow worksheet supporting the TI-spec 24 uneven flows (32 internally) with four-digit frequencies, computing NPV and IRR  
-- Bond worksheet with Actual/Actual or 30/360 day-count methods for clean price, yield-to-maturity or yield-to-call, and accrued interest  
-- Depreciation schedules for SL and SYD (book value, remaining depreciation, partial-year handling)  
-- Date worksheet (days between dates, partial years), BGN/END payment setting, ten-digit display, and ten user memories  
-- List-based one- and two-variable statistics with linear regression (other regression models unlocked in Professional mode)  
-- Prompted TI-style display showing the active variable/label, 2ND/CPT indicators, and percent difference/change functions (general trig/log/power math uses the fx-9750GIII OS)
+## 🎮 Quick Start
 
-### Professional Mode Specification
-- All Standard features plus cash-flow NFV, MIRR, payback, discounted payback, and cash-flow forecasting  
-- Bond duration and modified duration calculations, including yield-to-call mode  
-- Depreciation DB, DB with SL crossover, French SLF/DBF methods, and full depreciation schedules  
-- Breakeven, profit, target profit, percent difference/change, cost/sell/margin/markup worksheets  
-- Extended statistics (logarithmic, exponential, power regressions, forecasting) and 2ND-key shortcuts matching TI BA II Plus Professional behavior  
+### Key Mappings
+| Casio Key | TI Function |
+|-----------|-------------|
+| **SHIFT** | 2ND mode toggle |
+| **SHIFT + F3** | AMORT worksheet |
+| **SHIFT + F4** | BGN/END toggle |
+| **SHIFT + 7** | Cash Flow |
+| **SHIFT + 8** | Bond |
+| **SHIFT + 9** | Depreciation |
+| **SHIFT + 4** | Statistics |
+| **SHIFT + 5** | Date |
+| **SHIFT + 6** | Breakeven (Pro only) |
+| **SHIFT + 3** | Profit Margin (Pro only) |
+| **UP/DOWN** | Navigate worksheet |
+| **EXIT** | Return to TVM |
+| **OPTN** | STO (store to memory) |
+| **VARS** | RCL (recall from memory) |
 
-## Quick Start
+### Example: Calculate Loan Payment
+```
+1. Enter: 360 → F1 (N)      ← 30 years × 12 months
+2. Enter: 6 → F2 (I/Y)      ← 6% annual rate
+3. Enter: 250000 → F3 (PV)  ← Loan amount
+4. Enter: 0 → F5 (FV)       ← Pay off completely
+5. Press: F6 (CPT) → F4     ← Compute PMT
+6. Result: -1,498.88        ← Monthly payment
+```
 
-### Key Mappings (TI-style)
-| Key | Function |
-|-----|----------|
-| SHIFT | 2ND mode toggle |
-| SHIFT + F3 | AMORT |
-| SHIFT + F4 | BGN/END toggle |
-| SHIFT + 7 | Cash Flow |
-| SHIFT + 8 | Bond |
-| SHIFT + 9 | Depreciation |
-| SHIFT + 4 | Statistics |
-| SHIFT + 5 | Date |
-| SHIFT + 6 | Breakeven (Pro) |
-| UP/DOWN | Navigate worksheet |
-| EXIT | Return to TVM |
+---
 
-## Building
+## 🔨 Building
 
-### Prerequisites
+### fxSDK (Recommended)
 ```bash
-# macOS (via Homebrew)
+# Install fxSDK
 brew tap Lephenixnoir/fxsdk
 brew install fxsdk
 
-# Or: https://gitea.planet-casio.com/Lephenixnoir/fxsdk
-```
-
-### Compile & Test
-```bash
-# Run test suite (38 CFA-style tests)
-make cfa-test
-
-# Build for calculator
+# Build
 fxsdk build-fx
 
-# Build with official Casio SDK toolchain (fxlib.h)
-make SDK=casio casio-sdk
-# or add src/hal/casio/*.c to your CasioSDK project and define USE_CASIO_SDK
+# Run tests
+make cfa-test
 ```
 
-### Install
+### Official Casio SDK (Windows)
+```bash
+# Add preprocessor define: USE_CASIO_SDK
+# See docs/CASIO_SDK_BUILD.md for details
+```
+
+### Install on Calculator
 1. Connect fx-9750GIII via USB
 2. Copy `Open-fx-BA.g3a` to calculator
 3. Open from Main Menu
 
-## Test Coverage
+---
 
-**38/38 tests passing** including:
+## ✅ Test Coverage
+
+**39/39 tests passing** including:
 - 10 CFA Level I-III exam-style questions
-- 10 Advanced financial calculations
+- 10 Advanced financial calculations  
 - 5 Worksheet integration tests
 - 5 Edge case boundary tests
-- 8 Additional worksheet tests (amort, breakeven, margin, date, regression)
+- 9 Additional worksheet tests
 
-## Project Structure
+---
+
+## 📁 Project Structure
 ```
 src/
-├── main.c          # Entry point & event loop
-├── tvm.c/h         # TVM solver & amortization
-├── cashflow.c/h    # NPV, IRR, NFV
-├── bond.c/h        # Bond pricing & duration
+├── main.c           # Entry point & event loop
+├── tvm.c/h          # TVM solver & amortization
+├── cashflow.c/h     # NPV, IRR, NFV, MIRR
+├── bond.c/h         # Bond pricing & duration
 ├── depreciation.c/h # 6 depreciation methods
-├── statistics.c/h  # Stats & regression
-├── date.c/h        # Date calculations
-├── profit.c/h      # Breakeven & margin
-├── features.c/h    # Pro/Standard gating
-├── display.c/h     # TI-style display
-└── tests.c/h       # CFA validation suite
+├── statistics.c/h   # Stats & regression
+├── date.c/h         # Date calculations
+├── profit.c/h       # Breakeven & margin
+├── display.c/h      # TI-style display
+├── hal/             # Hardware abstraction (dual SDK)
+│   ├── fxsdk/       # fxSDK implementation
+│   └── casio/       # Casio SDK implementation
+└── tests.c/h        # CFA validation suite
 ```
 
-## License
+---
 
-MIT License
+## 📄 License
+
+MIT License - See [LICENSE](LICENSE) for details.
+
+---
+
+<div align="center">
+
+**Made with ❤️ for CFA & Finance Students**
+
+</div>
